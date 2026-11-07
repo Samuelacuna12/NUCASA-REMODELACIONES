@@ -1,6 +1,7 @@
 "use client";
 
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
+import { siteUrl } from "@/lib/site-url";
 import styles from "./photoreal-walkthrough.module.css";
 
 export type PhotorealWalkthroughHandle = { seek: (progress: number) => void };
@@ -264,7 +265,7 @@ const PhotorealWalkthrough = forwardRef<PhotorealWalkthroughHandle, PhotorealWal
       }
 
       function loadSource(force = false) {
-        const src = mediaQuery.matches ? mobileSrc || desktopSrc : desktopSrc;
+        const src = siteUrl(mediaQuery.matches ? mobileSrc || desktopSrc : desktopSrc);
         if (!force && src === selectedSrc) return;
         generation++;
         selectedSrc = src;
@@ -286,7 +287,7 @@ const PhotorealWalkthrough = forwardRef<PhotorealWalkthroughHandle, PhotorealWal
         video!.defaultMuted = true;
         video!.playsInline = true;
         video!.preload = "auto";
-        video!.poster = mediaQuery.matches ? mobilePoster || poster : poster;
+        video!.poster = siteUrl(mediaQuery.matches ? mobilePoster || poster : poster);
         // There is one selected URL, never two simultaneously mounted video sources.
         video!.src = src;
         video!.load();
@@ -429,8 +430,8 @@ const PhotorealWalkthrough = forwardRef<PhotorealWalkthroughHandle, PhotorealWal
       <div ref={rootRef} className={styles.walkthrough + (className ? " " + className : "")} data-status="loading" data-has-frame="false">
         <video ref={videoRef} className={styles.video} muted playsInline preload="auto" disablePictureInPicture disableRemotePlayback role="img" aria-label="Recorrido arquitectónico fotorrealista de una residencia" aria-busy="true" />
         <picture className={styles.poster} aria-hidden="true">
-          <source media="(max-width: 800px)" srcSet={mobilePoster || poster} />
-          <img src={poster} alt="" fetchPriority="high" decoding="async" draggable={false} />
+          <source media="(max-width: 800px)" srcSet={siteUrl(mobilePoster || poster)} />
+          <img src={siteUrl(poster)} alt="" fetchPriority="high" decoding="async" draggable={false} />
         </picture>
         <div className={styles.feedback}>
           <p ref={messageRef} role="status" aria-live="polite">Preparando recorrido arquitectónico…</p>

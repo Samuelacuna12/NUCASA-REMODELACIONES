@@ -1,16 +1,31 @@
-# nu casa — Inicio
+# nu casa — Remodelaciones
 
 Página de inicio para Nu Casa, Bucaramanga. Incluye un recorrido arquitectónico fotorrealista controlado con el scroll, cuatro servicios desplegables, comparador conceptual, sofá en L interactivo, catálogo visual con seis categorías y contacto.
 
 ## Desarrollo
 
-Node 24 recomendado; dependencias fijadas en package-lock.json.
+Node 24 recomendado; dependencias fijadas en package-lock.json. La web se compila como archivos estáticos para GitHub Pages, sin servidor de aplicaciones.
 
     npm ci
     npm run dev
     npm run build
+    npm run preview
 
-La implementación usa React, Vinext, GSAP/ScrollTrigger, Three.js y React Three Fiber. Conserva la integración Sites de Vite. La identidad del sitio está en .openai/hosting.json.
+La implementación usa React, Vite, GSAP/ScrollTrigger, Three.js y React Three Fiber. El destino principal es GitHub Pages. El código anterior de Vinext/Sites se conserva como integración heredada y no interviene en `dev`, `build` ni `preview`.
+
+## GitHub Pages
+
+Repositorio: https://github.com/Samuelacuna12/NUCASA-REMODELACIONES
+
+`npm run build` genera `out/`: inicio prerenderizado, tres documentos legales completos, archivos optimizados, `.nojekyll`, robots y sitemap. Los originales de stock y los archivos de trabajo no forman parte de esta salida.
+
+La base es `/NUCASA-REMODELACIONES/`. Para otro repositorio o un dominio propio se puede cambiar `PAGES_BASE_PATH` y, cuando corresponda, `PAGES_ORIGIN` al compilar. Cliente y prerenderizado usan la misma configuración de Vite para que medios, estilos, enlaces e hidratación coincidan.
+
+La rama `main` contiene las fuentes. La rama `gh-pages` contiene solamente el contenido compilado de `out/`. En Settings → Pages, el origen de publicación debe ser `gh-pages` y la carpeta `/ (root)`. Una actualización de las fuentes requiere volver a compilar y actualizar esa rama.
+
+Dirección prevista una vez activada la publicación: https://samuelacuna12.github.io/NUCASA-REMODELACIONES/
+
+La activación de Pages depende de la visibilidad del repositorio y del plan de GitHub. La existencia del repositorio o de la rama compilada no significa que la dirección ya esté publicada.
 
 ## Contenido y recursos
 
@@ -20,7 +35,10 @@ La implementación usa React, Vinext, GSAP/ScrollTrigger, Three.js y React Three
 - components/Mobiliario3D.tsx: GLB, iluminación, acabado fijo, controles de vista y carga al entrar en pantalla.
 - components/PhotorealWalkthrough.tsx: video de interior licenciado, poster inmediato y búsquedas de tiempo agrupadas. El navegador decodifica el video nativamente; el scroll controla su posición.
 - components/CatalogoMobiliario.tsx: filtros de categorías, fotografías y detalles ampliables dentro de la página.
-- app/legal/[slug]/page.tsx: documentos legales completos.
+- pages/entry-client.tsx: hidratación de la página de inicio.
+- pages/entry-server.tsx y pages/LegalStatic.tsx: prerenderizado del inicio y los documentos legales completos.
+- scripts/build-pages.mjs y vite.pages.config.ts: compilación estática para el subdirectorio del repositorio.
+- app/legal/[slug]/page.tsx: ruta de la integración heredada.
 - content/legal.json: datos reales del responsable y textos de privacidad, cookies y términos.
 - content/estructura-web.json: arquitectura de la futura web multipágina.
 - public/brand: SVG oficiales con currentColor.
@@ -49,4 +67,3 @@ La tienda, carrito, pagos y contratos electrónicos no se han habilitado en esta
 
 La pieza de Envato se utiliza como exhibición interactiva, sin personalización de un producto a pedido, exportación ni descarga del modelo en la interfaz. Para un configurador comercial se emplearán modelos propios o con derechos específicos.
 
-Repositorio privado: https://github.com/Samuelacuna12/NUCASA-REMODELACIONES

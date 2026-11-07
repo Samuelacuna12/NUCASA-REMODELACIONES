@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type MouseEvent } from "react";
+import { siteUrl } from "@/lib/site-url";
 import styles from "./catalogo-mobiliario.module.css";
 
 export type CategoriaMobiliario =
@@ -234,7 +235,7 @@ export default function CatalogoMobiliario({
                 >
                   <span className={styles.photoFrame}>
                     <img
-                      src={reference.image}
+                      src={siteUrl(reference.image)}
                       alt={"Imagen de referencia para " + reference.category.label.toLowerCase()}
                       loading="lazy"
                       decoding="async"
@@ -289,7 +290,7 @@ export default function CatalogoMobiliario({
                     <button type="button" onClick={() => setDetailImageFailed(false)}>Volver a intentar</button>
                   </div>
                 ) : (
-                  <img src={selectedReference.image} alt={selectedReference.name} onError={() => setDetailImageFailed(true)} />
+                  <img src={siteUrl(selectedReference.image)} alt={selectedReference.name} onError={() => setDetailImageFailed(true)} />
                 )}
               </div>
               <div className={styles.detailBody}>
