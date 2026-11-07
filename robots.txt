@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://samuelacuna12.github.io/NUCASA-REMODELACIONES/sitemap.xml
