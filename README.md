@@ -33,7 +33,7 @@ El recorrido y las fotografías son ambientes de referencia, no obras ejecutadas
 
 ## Criterios de interacción
 
-La apertura usa una secuencia de interior de stock para conservar la luz, los materiales y el acabado fotográfico. El scroll solicita posiciones del video con una sola búsqueda en curso y conserva el último destino. Los MP4 tienen inicio rápido y fotogramas clave cada 0,32 s. El explorador de mobiliario sí muestra geometría GLB en tiempo real, con giro por arrastre o teclado.
+La apertura usa una secuencia de interior de stock para conservar la luz, los materiales y el acabado fotográfico. Un lector nativo de desplazamiento controla el recorrido; GSAP anima las secciones editoriales por separado. El scroll solicita posiciones del video con una sola búsqueda en curso y conserva el último destino. Los MP4 tienen inicio rápido y fotogramas clave cada 0,32 s. El explorador de mobiliario sí muestra geometría GLB en tiempo real, con giro por arrastre o teclado.
 
 Se aplicaron las guías instaladas de GSAP/ScrollTrigger, React Three Fiber, composición responsive y movimiento. La preferencia de movimiento reducido se escucha también durante la sesión. Las búsquedas y el render se suspenden cuando están fuera de pantalla; los diálogos mantienen el foco y las categorías muestran imágenes antes de ofrecer contacto.
 

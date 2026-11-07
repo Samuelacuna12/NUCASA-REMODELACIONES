@@ -88,27 +88,60 @@ export default function HomeExperience() {
     const reduced = motionReduced || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let disposed = false;
     let cleanup = () => {};
-    const onScroll = () => setScrolled(window.scrollY > 36);
-    window.addEventListener("scroll", onScroll, { passive: true }); onScroll();
+    let start = 0;
+    let distance = 1;
+    let headerScrolled = window.scrollY > 36;
+    setScrolled(headerScrolled);
+    // The journey is essential: it must work before decorative animation modules load.
+    const syncJourney = () => {
+      if (disposed || reduced) return;
+      const position = Math.max(0, Math.min(1, (window.scrollY - start) / distance));
+      walkthrough.current?.seek(position);
+      if (progress.current) progress.current.style.transform = "scaleX(" + position + ")";
+      let next = 0;
+      for (let i = 1; i < CHAPTER_STOPS.length; i++) if (position >= CHAPTER_STOPS[i] - 0.015) next = i;
+      if (activeChapter.current !== next) { activeChapter.current = next; setChapter(next); }
+    };
+    const onScroll = () => {
+      const next = window.scrollY > 36;
+      if (next !== headerScrolled) { headerScrolled = next; setScrolled(next); }
+      // Media seeks are coalesced inside the player. This path does no layout reads.
+      syncJourney();
+    };
+    const measureJourney = () => {
+      if (disposed || !hero.current) return;
+      start = window.scrollY + hero.current.getBoundingClientRect().top;
+      distance = Math.max(1, hero.current.offsetHeight - window.innerHeight);
+      onScroll();
+    };
+    const resizeObserver = typeof ResizeObserver === "undefined" ? undefined : new ResizeObserver(measureJourney);
+    if (hero.current) resizeObserver?.observe(hero.current);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", measureJourney, { passive: true });
+    window.addEventListener("pageshow", measureJourney);
+    window.visualViewport?.addEventListener("resize", measureJourney);
+    measureJourney();
+    document.fonts.ready.then(measureJourney);
     if (!reduced) Promise.all([import("gsap"), import("gsap/ScrollTrigger")]).then(([{ gsap }, { ScrollTrigger }]) => {
       if (disposed) return;
       gsap.registerPlugin(ScrollTrigger);
       const ctx = gsap.context(() => {
-        ScrollTrigger.create({ trigger: hero.current, start: "top top", end: "bottom bottom", onUpdate: self => {
-          walkthrough.current?.seek(self.progress);
-          if (progress.current) progress.current.style.transform = "scaleX(" + self.progress + ")";
-          let next = 0;
-          for (let i = 1; i < CHAPTER_STOPS.length; i++) if (self.progress >= CHAPTER_STOPS[i] - 0.015) next = i;
-          if (activeChapter.current !== next) { activeChapter.current = next; setChapter(next); }
-        }});
         gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach(el => gsap.from(el, { y: 24, opacity: 0, duration: 0.6, ease: "power3.out", scrollTrigger: { trigger: el, start: "top 92%", once: true } }));
         gsap.to(".essence-arc", { y: -80, rotation: -8, ease: "none", scrollTrigger: { trigger: "#estudio", start: "top bottom", end: "bottom top", scrub: 0.65 } });
         ScrollTrigger.refresh();
       }, root);
       cleanup = () => ctx.revert();
       document.fonts.ready.then(() => { if (!disposed) ScrollTrigger.refresh(); });
-    });
-    return () => { disposed = true; cleanup(); window.removeEventListener("scroll", onScroll); };
+    }).catch(() => { /* The native journey and visible content remain available. */ });
+    return () => {
+      disposed = true;
+      cleanup();
+      resizeObserver?.disconnect();
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", measureJourney);
+      window.removeEventListener("pageshow", measureJourney);
+      window.visualViewport?.removeEventListener("resize", measureJourney);
+    };
   }, [motionReduced]);
   function goChapter(index: number) {
     if (!hero.current) return;

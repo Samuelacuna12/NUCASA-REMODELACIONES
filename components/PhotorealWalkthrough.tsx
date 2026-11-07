@@ -187,7 +187,9 @@ const PhotorealWalkthrough = forwardRef<PhotorealWalkthroughHandle, PhotorealWal
         seekTimer = undefined;
         recoverUnreportedSeek();
         diagnostics();
-        if (!active() || !lastTime || seeking || video!.seeking || video!.readyState < 1 || status === "error" || status === "interaction" || unlocking) return;
+        if (!active() || !lastTime || seeking || video!.seeking || video!.readyState < 1 || status === "error" || unlocking) return;
+        // An exhausted attempt waits for fresh input/activation, rather than blocking all future scroll.
+        if (status === "interaction" && quietRetries >= 2) return;
         const target = requested * lastTime;
         // WebKit can round a near-zero seek to zero without emitting seeked. Wait for data instead.
         if (Math.abs(target - video!.currentTime) < MIN_TIME_DELTA) return;
@@ -223,9 +225,17 @@ const PhotorealWalkthrough = forwardRef<PhotorealWalkthroughHandle, PhotorealWal
       }
 
       function seek(progress: number) {
-        requested = normalize(progress);
+        const next = normalize(progress);
+        const freshDestination = next !== requested;
+        requested = next;
         requestedRef.current = requested;
         video!.dataset.targetFrame = String(diagnosticFrame(requested));
+        if (freshDestination && status === "interaction" && video!.readyState >= 2 && !video!.error && !unlocking) {
+          // A transient native seek error must not latch a fully buffered video into interaction mode.
+          quietRetries = 0;
+          if (!video!.seeking) confirmFrame(video!.currentTime);
+          else feedback(hasFrame ? "buffering" : "loading", "Cargando esta vista…");
+        }
         diagnostics();
         // While a seek is in flight only this latest destination is retained.
         scheduleSeek();
@@ -340,6 +350,13 @@ const PhotorealWalkthrough = forwardRef<PhotorealWalkthroughHandle, PhotorealWal
           await video!.play();
           if (disposed || attemptGeneration !== generation) return;
           video!.pause();
+          quietRetries = 0;
+          if (video!.readyState >= 2 && !video!.seeking) {
+            // WebKit may already have current data and never emit another data event or RVFC.
+            confirmFrame(video!.currentTime);
+          } else if (status === "interaction") {
+            feedback("loading", "Preparando recorrido arquitectónico…");
+          }
           watchPresentation();
         } catch {
           if (!disposed && attemptGeneration === generation && !hasFrame) feedback("error", "El navegador no pudo activar el recorrido. Puedes volver a intentarlo.");
@@ -348,7 +365,11 @@ const PhotorealWalkthrough = forwardRef<PhotorealWalkthroughHandle, PhotorealWal
             video!.pause();
             unlocking = false;
             if (buttonRef.current) buttonRef.current.disabled = false;
-            if (!disposed) { seeking = false; scheduleSeek(); }
+            if (!disposed) {
+              seeking = video!.seeking;
+              if (seeking) watchSeek();
+              scheduleSeek();
+            }
           }
         }
       }
