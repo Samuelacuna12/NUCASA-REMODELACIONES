@@ -1,0 +1,277 @@
+.explorer {
+  --viewer-ink: #28251f;
+  --viewer-muted: #6f695e;
+  --viewer-line: rgba(63, 55, 43, 0.2);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  width: 100%;
+  height: clamp(490px, 46vw, 580px);
+  min-width: 0;
+  color: var(--viewer-ink);
+  background: transparent;
+  border-top: 1px solid var(--viewer-line);
+  border-bottom: 1px solid var(--viewer-line);
+}
+
+.heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 17px 0 0;
+}
+
+.heading h3,
+.heading > span {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.heading > span {
+  color: var(--viewer-muted);
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.stage {
+  position: relative;
+  min-height: 0;
+  isolation: isolate;
+}
+
+.canvasHost {
+  position: absolute;
+  inset: 0;
+}
+
+.canvasHost canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  touch-action: pan-y;
+}
+
+.canvasHost canvas:active {
+  cursor: grabbing;
+}
+
+.canvasHost canvas:focus-visible {
+  outline: 1px solid var(--viewer-ink);
+  outline-offset: -4px;
+}
+
+.notice {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  max-width: 300px;
+  margin: auto;
+  padding: 24px;
+  text-align: center;
+}
+
+.notice p {
+  margin: 0;
+  color: var(--viewer-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.loadingMark {
+  display: block;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--viewer-line);
+  border-top-color: var(--viewer-ink);
+}
+
+.help {
+  position: absolute;
+  right: 0;
+  bottom: 10px;
+  left: 0;
+  margin: 0;
+  color: var(--viewer-muted);
+  font-size: 12px;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+  text-align: center;
+  pointer-events: none;
+}
+
+.help > span[aria-hidden] {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 13px;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 56px;
+  border-top: 1px solid var(--viewer-line);
+}
+
+.finishes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+
+.finish,
+.reset,
+.retry {
+  display: inline-flex;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: color 150ms ease, opacity 150ms ease;
+}
+
+.finish::after {
+  position: absolute;
+  right: 0;
+  bottom: 6px;
+  left: 0;
+  height: 1px;
+  background: currentColor;
+  content: "";
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.finish[aria-pressed="true"]::after {
+  opacity: 1;
+}
+
+.reset {
+  gap: 8px;
+  color: var(--viewer-muted);
+  text-align: right;
+}
+
+.reset svg {
+  flex-shrink: 0;
+}
+
+.retry {
+  min-height: 44px;
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+
+.finish:disabled,
+.reset:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.finish:focus-visible,
+.reset:focus-visible,
+.retry:focus-visible {
+  outline: 1px solid var(--viewer-ink);
+  outline-offset: 4px;
+}
+
+.swatch {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border: 1px solid rgba(63, 55, 43, 0.25);
+  border-radius: 50%;
+}
+
+.original {
+  background: transparent;
+  box-shadow: inset 0 0 0 2px #e9e3d8;
+}
+
+.carbon {
+  background: #292724;
+}
+
+.marfil {
+  background: #e8dfcf;
+}
+
+.caption {
+  margin: 0;
+  padding: 0 0 14px;
+  color: var(--viewer-muted);
+  font-size: 12px;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+}
+
+.screenReader {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  border: 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .finish:not(:disabled):hover,
+  .reset:not(:disabled):hover {
+    color: #000;
+  }
+}
+
+@media (max-width: 540px) {
+  .explorer {
+    height: 510px;
+  }
+
+  .toolbar {
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .finishes {
+    column-gap: 12px;
+  }
+
+  .reset {
+    max-width: 112px;
+    font-size: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .finish,
+  .finish::after,
+  .reset,
+  .retry {
+    transition: none;
+  }
+}

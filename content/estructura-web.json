@@ -1,0 +1,44 @@
+{
+  "estado": "Primera versión de la página de inicio",
+  "paginas": [
+    {
+      "nombre": "Inicio",
+      "ruta": "/"
+    },
+    {
+      "nombre": "Quiénes somos",
+      "ruta": "/quienes-somos"
+    },
+    {
+      "nombre": "Servicios",
+      "ruta": "/servicios",
+      "subpaginas": [
+        "remodelaciones-de-bano",
+        "remodelaciones-de-cocina",
+        "remodelaciones-completas",
+        "de-obra-gris-a-espectaculo"
+      ]
+    },
+    {
+      "nombre": "Tienda online",
+      "ruta": "/tienda",
+      "categorias": [
+        "Mobiliario de cocina",
+        "Muebles de TV",
+        "Lámparas",
+        "Sillas",
+        "Comedores",
+        "Muebles"
+      ]
+    },
+    {
+      "nombre": "Remodelaciones hechas",
+      "ruta": "/remodelaciones-hechas"
+    },
+    {
+      "nombre": "Contacto",
+      "ruta": "/contacto"
+    }
+  ],
+  "nota": "La navegación de esta primera versión recorre las secciones del inicio. Las páginas interiores y la venta online se desarrollan en fases siguientes."
+}

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" role="img" aria-label="Símbolo de nu casa" fill="currentColor">
+  <title>Símbolo de nu casa</title>
+  <desc>Símbolo cuadrado de dos arcos, trazado vectorial de nu casa. Fondo transparente y color heredado mediante currentColor.</desc>
+  <g id="symbol" transform="translate(6 8)"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="miter" stroke-linecap="butt" d="M4.5 3.5 H62.5 V61.5 H4.5 Z M4.5 49.5 C10 29.8 25.3 18.5 44.3 18.5 C50.8 18.5 57 20.2 62.5 23.6 M23.3 61.5 C23.3 48.4 32.7 38 44.3 38 C52 38 58.6 42.3 62.5 48.6"/></g>
+</svg>
