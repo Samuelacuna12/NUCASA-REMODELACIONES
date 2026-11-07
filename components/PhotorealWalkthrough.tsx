@@ -68,20 +68,33 @@ const PhotorealWalkthrough = forwardRef<PhotorealWalkthroughHandle, PhotorealWal
       let seekTimer: number | undefined;
       let stallTimer: number | undefined;
       let initialTimer: number | undefined;
+      let watchdogTimer: number | undefined;
+      let issuedTarget = -1;
+      let quietRetries = 0;
       let presentationRequest: number | undefined;
       const active = () => !disposed && inView && visible;
       const diagnosticFrame = (progress: number) => Math.round(normalize(progress) * (count - 1)) + 1;
 
-      function clearTimer(name: "seek" | "stall" | "initial") {
+      function clearTimer(name: "seek" | "stall" | "initial" | "watchdog") {
         if (name === "seek" && seekTimer !== undefined) { window.clearTimeout(seekTimer); seekTimer = undefined; }
         if (name === "stall" && stallTimer !== undefined) { window.clearTimeout(stallTimer); stallTimer = undefined; }
         if (name === "initial" && initialTimer !== undefined) { window.clearTimeout(initialTimer); initialTimer = undefined; }
+        if (name === "watchdog" && watchdogTimer !== undefined) { window.clearTimeout(watchdogTimer); watchdogTimer = undefined; }
+      }
+
+      function diagnostics() {
+        root!.dataset.inView = String(inView);
+        root!.dataset.active = String(active());
+        root!.dataset.readyDuration = lastTime.toFixed(3);
+        root!.dataset.readyState = String(video!.readyState);
+        root!.dataset.seekState = unlocking ? "unlocking" : video!.seeking ? "native-seeking" : seeking ? "waiting-seeked" : seekTimer !== undefined ? "scheduled" : "idle";
       }
 
       function feedback(next: Status, message = "") {
         if (disposed) return;
         status = next;
         root!.dataset.status = next;
+        diagnostics();
         video!.setAttribute("aria-busy", String(next === "loading" || next === "buffering"));
         if (messageRef.current) {
           messageRef.current.setAttribute("aria-live", next === "buffering" || next === "ready" ? "off" : "polite");
@@ -138,13 +151,46 @@ const PhotorealWalkthrough = forwardRef<PhotorealWalkthroughHandle, PhotorealWal
         }, 650);
       }
 
+      function recoverUnreportedSeek(force = false) {
+        if (!seeking || video!.seeking || (!force && performance.now() - lastSeekAt < 100)) return;
+        seeking = false;
+        clearTimer("stall");
+        clearTimer("watchdog");
+        if (video!.readyState >= 2) confirmFrame(video!.currentTime);
+        diagnostics();
+      }
+
+      function watchSeek() {
+        clearTimer("watchdog");
+        let checks = 0;
+        const check = () => {
+          watchdogTimer = undefined;
+          if (disposed || !seeking) return;
+          diagnostics();
+          if (!video!.seeking) {
+            recoverUnreportedSeek(true);
+            const remaining = Math.abs(requested * lastTime - video!.currentTime);
+            if (active() && remaining >= MIN_TIME_DELTA) {
+              if (quietRetries < 2) { quietRetries++; scheduleSeek(); }
+              else feedback("interaction", "Activa el recorrido para explorar el espacio.");
+            } else quietRetries = 0;
+            return;
+          }
+          // No perpetual RAF or polling: native seeked/data events remain the main driver.
+          if (++checks < 8 && active()) watchdogTimer = window.setTimeout(check, 250);
+          else if (active() && status !== "error") feedback(hasFrame ? "buffering" : "loading", "Cargando esta vista…");
+        };
+        watchdogTimer = window.setTimeout(check, 200);
+      }
+
       function pumpSeek() {
         seekTimer = undefined;
-        if (!active() || !lastTime || seeking || video!.seeking || video!.readyState < 1 || status === "error" || unlocking) return;
-        let target = requested * lastTime;
-        // An initial tiny seek also confirms the first frame in browsers without RVFC.
-        if (!hasFrame && target < 0.001) target = Math.min(lastTime, 0.001);
-        if (hasFrame && Math.abs(target - video!.currentTime) < MIN_TIME_DELTA) return;
+        recoverUnreportedSeek();
+        diagnostics();
+        if (!active() || !lastTime || seeking || video!.seeking || video!.readyState < 1 || status === "error" || status === "interaction" || unlocking) return;
+        const target = requested * lastTime;
+        // WebKit can round a near-zero seek to zero without emitting seeked. Wait for data instead.
+        if (Math.abs(target - video!.currentTime) < MIN_TIME_DELTA) return;
         const wait = MIN_SEEK_INTERVAL - (performance.now() - lastSeekAt);
         if (wait > 0) {
           seekTimer = window.setTimeout(pumpSeek, wait);
@@ -152,27 +198,35 @@ const PhotorealWalkthrough = forwardRef<PhotorealWalkthroughHandle, PhotorealWal
         }
         seeking = true;
         lastSeekAt = performance.now();
+        if (Math.abs(target - issuedTarget) >= MIN_TIME_DELTA) quietRetries = 0;
+        issuedTarget = target;
         watchPresentation();
         markSlowSeek();
+        watchSeek();
         try {
           video!.currentTime = target;
+          diagnostics();
         } catch {
           seeking = false;
           clearTimer("stall");
+          clearTimer("watchdog");
           feedback("interaction", "Activa el recorrido para explorar el espacio.");
         }
       }
 
       function scheduleSeek() {
+        recoverUnreportedSeek();
         if (!active() || seekTimer !== undefined || seeking || video!.seeking || unlocking) return;
         const wait = Math.max(0, MIN_SEEK_INTERVAL - (performance.now() - lastSeekAt));
         seekTimer = window.setTimeout(pumpSeek, wait);
+        diagnostics();
       }
 
       function seek(progress: number) {
         requested = normalize(progress);
         requestedRef.current = requested;
         video!.dataset.targetFrame = String(diagnosticFrame(requested));
+        diagnostics();
         // While a seek is in flight only this latest destination is retained.
         scheduleSeek();
       }
@@ -181,15 +235,22 @@ const PhotorealWalkthrough = forwardRef<PhotorealWalkthroughHandle, PhotorealWal
         clearTimer("seek");
         clearTimer("stall");
         clearTimer("initial");
+        clearTimer("watchdog");
         cancelPresentation();
         video!.pause();
+        if (!video!.seeking) seeking = false;
+        diagnostics();
       }
 
       function resume() {
         if (!active()) return;
+        recoverUnreportedSeek(true);
+        if (!video!.seeking && video!.readyState >= 2) confirmFrame(video!.currentTime);
+        else if (seeking) watchSeek();
         watchPresentation();
         watchInitialLoad();
         scheduleSeek();
+        diagnostics();
       }
 
       function loadSource(force = false) {
@@ -204,6 +265,8 @@ const PhotorealWalkthrough = forwardRef<PhotorealWalkthroughHandle, PhotorealWal
         unlockUsed = false;
         lastTime = 0;
         lastSeekAt = -Infinity;
+        issuedTarget = -1;
+        quietRetries = 0;
         root!.dataset.hasFrame = "false";
         video!.dataset.currentFrame = "0";
         video!.dataset.currentTime = "0.000";
@@ -224,18 +287,29 @@ const PhotorealWalkthrough = forwardRef<PhotorealWalkthroughHandle, PhotorealWal
       function onMetadata() {
         if (!Number.isFinite(video!.duration) || video!.duration <= 0) return;
         lastTime = Math.max(0.001, video!.duration - 1 / 25);
+        diagnostics();
         scheduleSeek();
       }
 
       function onData() {
+        if (video!.readyState >= 2 && !video!.seeking) {
+          seeking = false;
+          clearTimer("stall");
+          clearTimer("watchdog");
+          // HAVE_CURRENT_DATA confirms the paused initial frame even without RVFC/seeked.
+          confirmFrame(video!.currentTime);
+        }
         watchPresentation();
         scheduleSeek();
+        diagnostics();
       }
 
       function onSeeked() {
         seeking = false;
         clearTimer("stall");
-        // seeked / RVFC are the only events that advance the visible-frame diagnostics.
+        clearTimer("watchdog");
+        if (Math.abs(video!.currentTime - issuedTarget) < MIN_TIME_DELTA) quietRetries = 0;
+        // This time is now decoded, unlike the requested currentTime before seek completion.
         confirmFrame(video!.currentTime);
         scheduleSeek();
       }
@@ -245,6 +319,7 @@ const PhotorealWalkthrough = forwardRef<PhotorealWalkthroughHandle, PhotorealWal
         clearTimer("seek");
         clearTimer("stall");
         clearTimer("initial");
+        clearTimer("watchdog");
         video!.pause();
         feedback("error", "No pudimos cargar el recorrido. Puedes volver a intentarlo.");
       }
@@ -280,6 +355,7 @@ const PhotorealWalkthrough = forwardRef<PhotorealWalkthroughHandle, PhotorealWal
 
       const onVisibility = () => {
         visible = document.visibilityState !== "hidden";
+        diagnostics();
         if (active()) resume(); else pause();
       };
       const onMotion = () => {
@@ -290,6 +366,7 @@ const PhotorealWalkthrough = forwardRef<PhotorealWalkthroughHandle, PhotorealWal
       const onSourceChange = () => loadSource();
       const observer = new IntersectionObserver(([entry]) => {
         inView = entry.isIntersecting;
+        diagnostics();
         if (active()) resume(); else pause();
       }, { rootMargin: "100px 0px", threshold: 0 });
 
