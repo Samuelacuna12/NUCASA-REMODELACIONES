@@ -173,11 +173,14 @@ function Furniture({ modelUrl, bridge, reduced, active, preparing, environmentRe
       try {
         const response = await fetch(modelUrl, { signal: abort.signal });
         if (!response.ok) throw new Error("No está disponible el archivo del modelo 3D.");
-        const { GLTFLoader } = await import("three/addons/loaders/GLTFLoader.js");
+        const [{ GLTFLoader }, { MeshoptDecoder }] = await Promise.all([
+          import("three/addons/loaders/GLTFLoader.js"),
+          import("three/addons/libs/meshopt_decoder.module.js"),
+        ]);
         const buffer = await response.arrayBuffer();
         if (disposed) return;
         const resourcePath = new URL(".", new URL(modelUrl, window.location.href)).href;
-        const gltf = await new GLTFLoader().parseAsync(buffer, resourcePath);
+        const gltf = await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).parseAsync(buffer, resourcePath);
         const scenes = gltf.scenes.length ? gltf.scenes : [gltf.scene];
         if (disposed) { disposeModel(scenes, new Set()); return; }
         owned = prepareModel(scenes, gltf.scene); setModel(owned); invalidate();

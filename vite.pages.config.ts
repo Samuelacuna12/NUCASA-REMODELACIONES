@@ -12,7 +12,27 @@ export default defineConfig({
   base: base.replace(/\/{2,}/g, "/"),
   plugins: [react()],
   resolve: { alias: { "@": root } },
-  build: { outDir: "out", emptyOutDir: true },
+  build: {
+    outDir: "out",
+    emptyOutDir: true,
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [{
+            name: "react-vendor",
+            test: /node_modules[\\/](?:react|react-dom|scheduler)(?:[\\/]|$)/,
+            priority: 20,
+          }, {
+            // These small modules are used by both the placeholder and the lazy viewer.
+            // Keeping them outside the entry prevents CSS edits invalidating the 3D chunks.
+            name: "viewer-shared",
+            test: /(?:preload-helper|mobiliario-3d\.module\.css)/,
+            priority: 10,
+          }],
+        },
+      },
+    },
+  },
   server: { host: "127.0.0.1" },
   preview: { host: "127.0.0.1" },
 });

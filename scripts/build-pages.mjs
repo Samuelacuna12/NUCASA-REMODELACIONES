@@ -46,6 +46,7 @@ try {
   // Legal documents are full physical HTML pages; they need neither routing nor JavaScript.
   const legalTemplate = template
     .replace(/\s*<script\b[^>]*>[\s\S]*?<\/script>/g, "")
+    .replace(/\s*<link\b[^>]*\brel="modulepreload"[^>]*>/g, "")
     .replace(/\s*<link\b[^>]*\bas="image"[^>]*>/g, "");
   for (const doc of legal.documents) {
     const path = "legal/" + doc.id + "/";
