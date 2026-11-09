@@ -49,6 +49,31 @@ Los originales descargados y su manifiesto de procedencia permanecen fuera del s
 
 El recorrido y las fotografías son ambientes de referencia, no obras ejecutadas por Nu Casa. El comparador está rotulado como visualización conceptual con IA. Las obras y los clientes reales se añadirán con su material y autorización. El catálogo contiene diseños de referencia; los materiales, las medidas y la disponibilidad comercial se definen al cotizar.
 
+## Rendimiento: revisión del 9 de noviembre de 2026
+
+Los archivos servidos por GitHub ya tenían compresión, caché y soporte de rangos. El problema principal de transferencia estaba en los recursos de varios megabytes; el scroll también programaba búsquedas y escrituras de diagnóstico redundantes.
+
+| Recurso activo | Antes | Ahora |
+| --- | ---: | ---: |
+| Recorrido escritorio | 5.314.357 B | 2.632.627 B |
+| Recorrido móvil | 3.831.120 B | 1.791.831 B |
+| Modelo del sofá | 5.979.552 B | 2.757.576 B |
+| Fuente Manrope | 164.700 B | 30.712 B |
+| Poster escritorio | 170.011 B | 50.478 B |
+| Poster móvil | 117.804 B | 38.316 B |
+
+Los videos conservan los 480 cuadros, 25 fps, 19,2 s, H.264 sin B-frames, metadatos al inicio y keyframes cada 0,32 s. El escritorio usa 1280×720 y el móvil 540×960; las variantes reducen los píxeles que el navegador debe decodificar. SSIM frente al original reducido: 0,9762 y 0,9728. Hay un leve suavizado de textura fina; el recorrido y el encuadre se mantienen.
+
+El GLB conserva geometría, índices, UV y materiales. Las texturas pasan de tres PNG 2048 a albedo JPEG 1024, ORM PNG 1024 y normal PNG 1×1: esta última era completamente uniforme, por lo que conserva exactamente el mismo valor. La memoria estimada de texturas RGBA con mipmaps pasa de 64 a 10,67 MiB. El cargador utiliza formatos glTF estándar, sin decodificadores adicionales.
+
+Las fotografías usan WebP y variantes de 640/1280 píxeles a través de `lib/responsive-image.ts`. La fuente se distribuye en WOFF2 con caracteres latinos, acentos y signos. El poster y la fuente se descubren desde el HTML; los documentos legales no precargan los posters.
+
+El recorrido agrupa el scroll en un RAF, conserva la geometría entre cambios de tamaño y solo solicita un cuadro nuevo cuando corresponde. El motor mantiene una búsqueda en curso, los reintentos acotados y la recuperación de WebKit. GSAP se descarga cerca de las secciones editoriales, sin bloquear el recorrido inicial. El visor 3D prepara sus recursos antes de entrar en pantalla y detiene el render al alejarse o esconder la pestaña.
+
+Los diagnósticos de video y 3D se habilitan con `?rendimiento=1`; la visita normal no escribe contadores por cuadro. Los archivos anteriores se conservan una versión para que los clientes con HTML/JS en caché sigan funcionando: su presencia en `public/` no implica que la versión nueva los descargue.
+
+Las reducciones de bytes y memoria no equivalen a un porcentaje universal de mejora en segundos o FPS. El resultado también depende del dispositivo y la conexión.
+
 ## Criterios de interacción
 
 La apertura usa una secuencia de interior de stock para conservar la luz, los materiales y el acabado fotográfico. Un lector nativo de desplazamiento controla el recorrido; GSAP anima las secciones editoriales por separado. El scroll solicita posiciones del video con una sola búsqueda en curso y conserva el último destino. Los MP4 tienen inicio rápido y fotogramas clave cada 0,32 s. El explorador de mobiliario sí muestra geometría GLB en tiempo real, con giro por arrastre o teclado.

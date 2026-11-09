@@ -44,7 +44,9 @@ try {
   await writeFile(resolve(output, "index.html"), template.replace("<!--page-html-->", renderHome()).replace("<!--page-meta-->", metadata("", title, description)));
 
   // Legal documents are full physical HTML pages; they need neither routing nor JavaScript.
-  const legalTemplate = template.replace(/\s*<script\b[^>]*>[\s\S]*?<\/script>/g, "");
+  const legalTemplate = template
+    .replace(/\s*<script\b[^>]*>[\s\S]*?<\/script>/g, "")
+    .replace(/\s*<link\b[^>]*\bas="image"[^>]*>/g, "");
   for (const doc of legal.documents) {
     const path = "legal/" + doc.id + "/";
     const docTitle = doc.title + " | nu casa";

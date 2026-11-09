@@ -1,0 +1,204 @@
+{
+  "/media/bano.jpg": {
+    "src": "/media/bano.webp",
+    "width": 1280,
+    "height": 853,
+    "variants": [
+      {
+        "src": "/media/bano-640.webp",
+        "width": 640
+      },
+      {
+        "src": "/media/bano.webp",
+        "width": 1280
+      }
+    ]
+  },
+  "/media/catalogo/cocina-1.jpg": {
+    "src": "/media/catalogo/cocina-1.webp",
+    "width": 1280,
+    "height": 960,
+    "variants": [
+      {
+        "src": "/media/catalogo/cocina-1-640.webp",
+        "width": 640
+      },
+      {
+        "src": "/media/catalogo/cocina-1.webp",
+        "width": 1280
+      }
+    ]
+  },
+  "/media/catalogo/comedor-1.jpg": {
+    "src": "/media/catalogo/comedor-1.webp",
+    "width": 1280,
+    "height": 854,
+    "variants": [
+      {
+        "src": "/media/catalogo/comedor-1-640.webp",
+        "width": 640
+      },
+      {
+        "src": "/media/catalogo/comedor-1.webp",
+        "width": 1280
+      }
+    ]
+  },
+  "/media/catalogo/lampara-1.jpg": {
+    "src": "/media/catalogo/lampara-1.webp",
+    "width": 1200,
+    "height": 1600,
+    "variants": [
+      {
+        "src": "/media/catalogo/lampara-1-640.webp",
+        "width": 640
+      },
+      {
+        "src": "/media/catalogo/lampara-1.webp",
+        "width": 1200
+      }
+    ]
+  },
+  "/media/catalogo/mueble-l-1.jpg": {
+    "src": "/media/catalogo/mueble-l-1.webp",
+    "width": 1280,
+    "height": 854,
+    "variants": [
+      {
+        "src": "/media/catalogo/mueble-l-1-640.webp",
+        "width": 640
+      },
+      {
+        "src": "/media/catalogo/mueble-l-1.webp",
+        "width": 1280
+      }
+    ]
+  },
+  "/media/catalogo/silla-1.jpg": {
+    "src": "/media/catalogo/silla-1.webp",
+    "width": 1280,
+    "height": 1280,
+    "variants": [
+      {
+        "src": "/media/catalogo/silla-1-640.webp",
+        "width": 640
+      },
+      {
+        "src": "/media/catalogo/silla-1.webp",
+        "width": 1280
+      }
+    ]
+  },
+  "/media/catalogo/tv-1.jpg": {
+    "src": "/media/catalogo/tv-1.webp",
+    "width": 1280,
+    "height": 960,
+    "variants": [
+      {
+        "src": "/media/catalogo/tv-1-640.webp",
+        "width": 640
+      },
+      {
+        "src": "/media/catalogo/tv-1.webp",
+        "width": 1280
+      }
+    ]
+  },
+  "/media/cocina.jpg": {
+    "src": "/media/cocina.webp",
+    "width": 1280,
+    "height": 960,
+    "variants": [
+      {
+        "src": "/media/cocina-640.webp",
+        "width": 640
+      },
+      {
+        "src": "/media/cocina.webp",
+        "width": 1280
+      }
+    ]
+  },
+  "/media/materiales.jpg": {
+    "src": "/media/materiales.webp",
+    "width": 1280,
+    "height": 853,
+    "variants": [
+      {
+        "src": "/media/materiales-640.webp",
+        "width": 640
+      },
+      {
+        "src": "/media/materiales.webp",
+        "width": 1280
+      }
+    ]
+  },
+  "/media/recorrido-poster-vertical.jpg": {
+    "src": "/media/recorrido-poster-vertical.webp",
+    "width": 540,
+    "height": 960,
+    "variants": [
+      {
+        "src": "/media/recorrido-poster-vertical.webp",
+        "width": 540
+      }
+    ]
+  },
+  "/media/recorrido-poster.jpg": {
+    "src": "/media/recorrido-poster.webp",
+    "width": 1280,
+    "height": 720,
+    "variants": [
+      {
+        "src": "/media/recorrido-poster.webp",
+        "width": 1280
+      }
+    ]
+  },
+  "/media/salon.jpg": {
+    "src": "/media/salon.webp",
+    "width": 1280,
+    "height": 1600,
+    "variants": [
+      {
+        "src": "/media/salon-640.webp",
+        "width": 640
+      },
+      {
+        "src": "/media/salon.webp",
+        "width": 1280
+      }
+    ]
+  },
+  "/media/transformacion-antes.webp": {
+    "src": "/media/transformacion-antes-1280.webp",
+    "width": 1280,
+    "height": 720,
+    "variants": [
+      {
+        "src": "/media/transformacion-antes-640.webp",
+        "width": 640
+      },
+      {
+        "src": "/media/transformacion-antes-1280.webp",
+        "width": 1280
+      }
+    ]
+  },
+  "/media/transformacion-despues.webp": {
+    "src": "/media/transformacion-despues-1280.webp",
+    "width": 1280,
+    "height": 720,
+    "variants": [
+      {
+        "src": "/media/transformacion-despues-640.webp",
+        "width": 640
+      },
+      {
+        "src": "/media/transformacion-despues-1280.webp",
+        "width": 1280
+      }
+    ]
+  }
+}

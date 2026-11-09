@@ -20,15 +20,16 @@ type Controls = { seek: (progress: number) => void; retry: () => void };
 type Status = "loading" | "ready" | "buffering" | "interaction" | "error";
 const normalize = (value: number) => Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 0;
 const MIN_SEEK_INTERVAL = 1000 / 24;
-const MIN_TIME_DELTA = 0.025;
+const VIDEO_FPS = 25;
+const FRAME_DURATION = 1 / VIDEO_FPS;
 
 /** Paused architectural footage whose position is controlled exclusively by external progress. */
 const PhotorealWalkthrough = forwardRef<PhotorealWalkthroughHandle, PhotorealWalkthroughProps>(
   function PhotorealWalkthrough({
-    desktopSrc = "/media/recorrido-web.mp4",
-    mobileSrc = "/media/recorrido-vertical.mp4",
-    poster = "/media/recorrido-poster.jpg",
-    mobilePoster = "/media/recorrido-poster-vertical.jpg",
+    desktopSrc = "/media/recorrido-web-ligero.mp4",
+    mobileSrc = "/media/recorrido-vertical-ligero.mp4",
+    poster = "/media/recorrido-poster.webp",
+    mobilePoster = "/media/recorrido-poster-vertical.webp",
     frameCount = 307,
     className,
   }, forwardedRef) {
@@ -52,6 +53,8 @@ const PhotorealWalkthrough = forwardRef<PhotorealWalkthroughHandle, PhotorealWal
       if (!root || !video) return;
       const mediaQuery = window.matchMedia("(max-width: 800px)");
       const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+      const debug = (typeof import.meta.env !== "undefined" && import.meta.env.DEV)
+        || new URLSearchParams(window.location.search).get("rendimiento") === "1";
       const count = Math.max(1, Math.floor(Number.isFinite(frameCount) ? frameCount : 307));
       let disposed = false;
       let inView = true;
@@ -65,6 +68,8 @@ const PhotorealWalkthrough = forwardRef<PhotorealWalkthroughHandle, PhotorealWal
       let unlockUsed = false;
       let generation = 0;
       let status: Status = "loading";
+      let feedbackMessage = "";
+      let feedbackInitialized = false;
       let selectedSrc = "";
       let seekTimer: number | undefined;
       let stallTimer: number | undefined;
@@ -73,8 +78,17 @@ const PhotorealWalkthrough = forwardRef<PhotorealWalkthroughHandle, PhotorealWal
       let issuedTarget = -1;
       let quietRetries = 0;
       let presentationRequest: number | undefined;
+      let seekCount = 0;
       const active = () => !disposed && inView && visible;
       const diagnosticFrame = (progress: number) => Math.round(normalize(progress) * (count - 1)) + 1;
+      const encodedFrame = (time: number) => Math.floor(Math.max(0, time) * VIDEO_FPS + 0.0001);
+      const targetFrame = (progress = requested) => Math.min(encodedFrame(lastTime), Math.round(progress * lastTime * VIDEO_FPS));
+      const targetTime = () => targetFrame() * FRAME_DURATION;
+      const needsSeek = () => targetFrame() !== encodedFrame(video.currentTime);
+
+      function debugValue(element: HTMLElement, name: string, value: string) {
+        if (debug && element.dataset[name] !== value) element.dataset[name] = value;
+      }
 
       function clearTimer(name: "seek" | "stall" | "initial" | "watchdog") {
         if (name === "seek" && seekTimer !== undefined) { window.clearTimeout(seekTimer); seekTimer = undefined; }
@@ -84,27 +98,36 @@ const PhotorealWalkthrough = forwardRef<PhotorealWalkthroughHandle, PhotorealWal
       }
 
       function diagnostics() {
-        root!.dataset.inView = String(inView);
-        root!.dataset.active = String(active());
-        root!.dataset.readyDuration = lastTime.toFixed(3);
-        root!.dataset.readyState = String(video!.readyState);
-        root!.dataset.seekState = unlocking ? "unlocking" : video!.seeking ? "native-seeking" : seeking ? "waiting-seeked" : seekTimer !== undefined ? "scheduled" : "idle";
+        if (!debug) return;
+        debugValue(root!, "inView", String(inView));
+        debugValue(root!, "active", String(active()));
+        debugValue(root!, "readyDuration", lastTime.toFixed(3));
+        debugValue(root!, "readyState", String(video!.readyState));
+        debugValue(root!, "seekState", unlocking ? "unlocking" : video!.seeking ? "native-seeking" : seeking ? "waiting-seeked" : seekTimer !== undefined ? "scheduled" : "idle");
       }
 
       function feedback(next: Status, message = "") {
         if (disposed) return;
+        const changed = !feedbackInitialized || next !== status || message !== feedbackMessage;
         status = next;
-        root!.dataset.status = next;
         diagnostics();
-        video!.setAttribute("aria-busy", String(next === "loading" || next === "buffering"));
+        if (!changed) return;
+        feedbackInitialized = true;
+        feedbackMessage = message;
+        if (root!.dataset.status !== next) root!.dataset.status = next;
+        const busy = String(next === "loading" || next === "buffering");
+        if (video!.getAttribute("aria-busy") !== busy) video!.setAttribute("aria-busy", busy);
         if (messageRef.current) {
-          messageRef.current.setAttribute("aria-live", next === "buffering" || next === "ready" ? "off" : "polite");
+          const live = next === "buffering" || next === "ready" ? "off" : "polite";
+          if (messageRef.current.getAttribute("aria-live") !== live) messageRef.current.setAttribute("aria-live", live);
           if (messageRef.current.textContent !== message) messageRef.current.textContent = message;
         }
         if (buttonRef.current) {
-          buttonRef.current.hidden = next !== "error" && next !== "interaction";
-          buttonRef.current.disabled = unlocking;
-          buttonRef.current.textContent = next === "interaction" ? "Activar recorrido" : "Reintentar recorrido";
+          const hidden = next !== "error" && next !== "interaction";
+          const label = next === "interaction" ? "Activar recorrido" : "Reintentar recorrido";
+          if (buttonRef.current.hidden !== hidden) buttonRef.current.hidden = hidden;
+          if (buttonRef.current.disabled !== unlocking) buttonRef.current.disabled = unlocking;
+          if (buttonRef.current.textContent !== label) buttonRef.current.textContent = label;
         }
       }
 
@@ -117,10 +140,14 @@ const PhotorealWalkthrough = forwardRef<PhotorealWalkthroughHandle, PhotorealWal
 
       function confirmFrame(mediaTime: number) {
         if (disposed || video!.readyState < 2) return;
-        hasFrame = true;
-        root!.dataset.hasFrame = "true";
-        video!.dataset.currentFrame = String(diagnosticFrame(lastTime > 0 ? mediaTime / lastTime : 0));
-        video!.dataset.currentTime = mediaTime.toFixed(3);
+        if (!hasFrame) {
+          hasFrame = true;
+          root!.dataset.hasFrame = "true";
+        }
+        if (debug) {
+          debugValue(video!, "currentFrame", String(diagnosticFrame(lastTime > 0 ? mediaTime / lastTime : 0)));
+          debugValue(video!, "currentTime", mediaTime.toFixed(3));
+        }
         clearTimer("initial");
         if (status !== "error") feedback("ready");
       }
@@ -170,8 +197,7 @@ const PhotorealWalkthrough = forwardRef<PhotorealWalkthroughHandle, PhotorealWal
           diagnostics();
           if (!video!.seeking) {
             recoverUnreportedSeek(true);
-            const remaining = Math.abs(requested * lastTime - video!.currentTime);
-            if (active() && remaining >= MIN_TIME_DELTA) {
+            if (active() && needsSeek()) {
               if (quietRetries < 2) { quietRetries++; scheduleSeek(); }
               else feedback("interaction", "Activa el recorrido para explorar el espacio.");
             } else quietRetries = 0;
@@ -191,9 +217,9 @@ const PhotorealWalkthrough = forwardRef<PhotorealWalkthroughHandle, PhotorealWal
         if (!active() || !lastTime || seeking || video!.seeking || video!.readyState < 1 || status === "error" || unlocking) return;
         // An exhausted attempt waits for fresh input/activation, rather than blocking all future scroll.
         if (status === "interaction" && quietRetries >= 2) return;
-        const target = requested * lastTime;
+        const target = targetTime();
         // WebKit can round a near-zero seek to zero without emitting seeked. Wait for data instead.
-        if (Math.abs(target - video!.currentTime) < MIN_TIME_DELTA) return;
+        if (!needsSeek()) return;
         const wait = MIN_SEEK_INTERVAL - (performance.now() - lastSeekAt);
         if (wait > 0) {
           seekTimer = window.setTimeout(pumpSeek, wait);
@@ -201,12 +227,13 @@ const PhotorealWalkthrough = forwardRef<PhotorealWalkthroughHandle, PhotorealWal
         }
         seeking = true;
         lastSeekAt = performance.now();
-        if (Math.abs(target - issuedTarget) >= MIN_TIME_DELTA) quietRetries = 0;
+        if (encodedFrame(target) !== encodedFrame(issuedTarget)) quietRetries = 0;
         issuedTarget = target;
         watchPresentation();
         markSlowSeek();
         watchSeek();
         try {
+          if (debug) debugValue(root!, "seekCount", String(++seekCount));
           video!.currentTime = target;
           diagnostics();
         } catch {
@@ -220,6 +247,7 @@ const PhotorealWalkthrough = forwardRef<PhotorealWalkthroughHandle, PhotorealWal
       function scheduleSeek() {
         recoverUnreportedSeek();
         if (!active() || seekTimer !== undefined || seeking || video!.seeking || unlocking) return;
+        if (!lastTime || video!.readyState < 1 || status === "error" || (status === "interaction" && quietRetries >= 2) || !needsSeek()) return;
         const wait = Math.max(0, MIN_SEEK_INTERVAL - (performance.now() - lastSeekAt));
         seekTimer = window.setTimeout(pumpSeek, wait);
         diagnostics();
@@ -227,16 +255,17 @@ const PhotorealWalkthrough = forwardRef<PhotorealWalkthroughHandle, PhotorealWal
 
       function seek(progress: number) {
         const next = normalize(progress);
-        const freshDestination = next !== requested;
+        const freshDestination = targetFrame(next) !== targetFrame();
         requested = next;
         requestedRef.current = requested;
-        video!.dataset.targetFrame = String(diagnosticFrame(requested));
+        if (debug) debugValue(video!, "targetFrame", String(diagnosticFrame(requested)));
         if (freshDestination && status === "interaction" && video!.readyState >= 2 && !video!.error && !unlocking) {
           // A transient native seek error must not latch a fully buffered video into interaction mode.
           quietRetries = 0;
           if (!video!.seeking) confirmFrame(video!.currentTime);
           else feedback(hasFrame ? "buffering" : "loading", "Cargando esta vista…");
         }
+        if (!freshDestination) return;
         diagnostics();
         // While a seek is in flight only this latest destination is retained.
         scheduleSeek();
@@ -279,9 +308,12 @@ const PhotorealWalkthrough = forwardRef<PhotorealWalkthroughHandle, PhotorealWal
         issuedTarget = -1;
         quietRetries = 0;
         root!.dataset.hasFrame = "false";
-        video!.dataset.currentFrame = "0";
-        video!.dataset.currentTime = "0.000";
-        video!.dataset.targetFrame = String(diagnosticFrame(requested));
+        if (debug) {
+          debugValue(video!, "currentFrame", "0");
+          debugValue(video!, "currentTime", "0.000");
+          debugValue(video!, "targetFrame", String(diagnosticFrame(requested)));
+          debugValue(root!, "seekCount", String(seekCount));
+        }
         feedback("loading", "Preparando recorrido arquitectónico…");
         video!.muted = true;
         video!.defaultMuted = true;
@@ -297,7 +329,7 @@ const PhotorealWalkthrough = forwardRef<PhotorealWalkthroughHandle, PhotorealWal
 
       function onMetadata() {
         if (!Number.isFinite(video!.duration) || video!.duration <= 0) return;
-        lastTime = Math.max(0.001, video!.duration - 1 / 25);
+        lastTime = Math.max(0.001, video!.duration - FRAME_DURATION);
         diagnostics();
         scheduleSeek();
       }
@@ -319,7 +351,8 @@ const PhotorealWalkthrough = forwardRef<PhotorealWalkthroughHandle, PhotorealWal
         seeking = false;
         clearTimer("stall");
         clearTimer("watchdog");
-        if (Math.abs(video!.currentTime - issuedTarget) < MIN_TIME_DELTA) quietRetries = 0;
+        if (encodedFrame(video!.currentTime) === encodedFrame(issuedTarget)) quietRetries = 0;
+        if (debug && Number.isFinite(lastSeekAt)) debugValue(root!, "lastSeekMs", (performance.now() - lastSeekAt).toFixed(1));
         // This time is now decoded, unlike the requested currentTime before seek completion.
         confirmFrame(video!.currentTime);
         scheduleSeek();

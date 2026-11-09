@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type MouseEvent } from "react";
-import { siteUrl } from "@/lib/site-url";
+import { responsiveImage } from "@/lib/responsive-image";
 import styles from "./catalogo-mobiliario.module.css";
 
 export type CategoriaMobiliario =
@@ -235,10 +235,9 @@ export default function CatalogoMobiliario({
                 >
                   <span className={styles.photoFrame}>
                     <img
-                      src={siteUrl(reference.image)}
+                      {...responsiveImage(reference.image, "(max-width: 800px) calc(100vw - 40px), (max-width: 1100px) 65vw, 70vw")}
                       alt={"Imagen de referencia para " + reference.category.label.toLowerCase()}
                       loading="lazy"
-                      decoding="async"
                       onError={() => markImageFailed(reference.image)}
                     />
                     <span className={styles.photoAction} aria-hidden="true"><Arrow /></span>
@@ -290,7 +289,7 @@ export default function CatalogoMobiliario({
                     <button type="button" onClick={() => setDetailImageFailed(false)}>Volver a intentar</button>
                   </div>
                 ) : (
-                  <img src={siteUrl(selectedReference.image)} alt={selectedReference.name} onError={() => setDetailImageFailed(true)} />
+                  <img {...responsiveImage(selectedReference.image, "(max-width: 800px) calc(100vw - 40px), 60vw")} alt={selectedReference.name} onError={() => setDetailImageFailed(true)} />
                 )}
               </div>
               <div className={styles.detailBody}>

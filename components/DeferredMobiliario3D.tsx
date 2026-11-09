@@ -22,7 +22,7 @@ export default function DeferredMobiliario3D(props: Mobiliario3DProps) {
       if (!entry.isIntersecting) return;
       setNearViewport(true);
       observer.disconnect();
-    }, { rootMargin: "300px 0px", threshold: 0 });
+    }, { rootMargin: "1200px 0px", threshold: 0 });
     observer.observe(host.current);
     return () => observer.disconnect();
   }, []);

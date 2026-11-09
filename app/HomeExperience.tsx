@@ -4,6 +4,7 @@ import Mobiliario3D from "@/components/DeferredMobiliario3D";
 import PhotorealWalkthrough, { type PhotorealWalkthroughHandle } from "@/components/PhotorealWalkthrough";
 import CatalogoMobiliario from "@/components/CatalogoMobiliario";
 import { siteUrl } from "@/lib/site-url";
+import { responsiveImage } from "@/lib/responsive-image";
 
 const WA = "https://wa.me/573213078837";
 const MAP = "https://www.google.com/maps/search/?api=1&query=Carrera%2029%20%2330-39%2C%20La%20Aurora%2C%20Bucaramanga";
@@ -89,54 +90,93 @@ export default function HomeExperience() {
     const reduced = motionReduced || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let disposed = false;
     let cleanup = () => {};
+    let decorationObserver: IntersectionObserver | undefined;
+    let decorationsStarted = false;
     let start = 0;
     let distance = 1;
+    let frame = 0;
+    let needsMeasure = true;
+    let lastPosition = -1;
     let headerScrolled = window.scrollY > 36;
     setScrolled(headerScrolled);
     // The journey is essential: it must work before decorative animation modules load.
     const syncJourney = () => {
       if (disposed || reduced) return;
       const position = Math.max(0, Math.min(1, (window.scrollY - start) / distance));
+      if (position === lastPosition) return;
+      lastPosition = position;
       walkthrough.current?.seek(position);
       if (progress.current) progress.current.style.transform = "scaleX(" + position + ")";
       let next = 0;
       for (let i = 1; i < CHAPTER_STOPS.length; i++) if (position >= CHAPTER_STOPS[i] - 0.015) next = i;
       if (activeChapter.current !== next) { activeChapter.current = next; setChapter(next); }
     };
-    const onScroll = () => {
+    const updateHeader = () => {
       const next = window.scrollY > 36;
       if (next !== headerScrolled) { headerScrolled = next; setScrolled(next); }
-      // Media seeks are coalesced inside the player. This path does no layout reads.
-      syncJourney();
     };
-    const measureJourney = () => {
-      if (disposed || !hero.current) return;
-      start = window.scrollY + hero.current.getBoundingClientRect().top;
-      distance = Math.max(1, hero.current.offsetHeight - window.innerHeight);
-      onScroll();
+    const scheduleFrame = (measure = false) => {
+      if (disposed) return;
+      needsMeasure = needsMeasure || measure;
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        if (disposed) return;
+        if (needsMeasure && hero.current) {
+          const stage = hero.current.querySelector<HTMLElement>(".hero-stage");
+          start = window.scrollY + hero.current.getBoundingClientRect().top;
+          distance = Math.max(1, hero.current.offsetHeight - (stage?.clientHeight || window.innerHeight));
+          needsMeasure = false;
+        }
+        updateHeader();
+        // Ordinary scroll frames use cached geometry; resize reads finish before DOM writes.
+        syncJourney();
+      });
     };
+    const onScroll = () => scheduleFrame();
+    const measureJourney = () => scheduleFrame(true);
     const resizeObserver = typeof ResizeObserver === "undefined" ? undefined : new ResizeObserver(measureJourney);
-    if (hero.current) resizeObserver?.observe(hero.current);
+    if (hero.current) {
+      resizeObserver?.observe(hero.current);
+      const stage = hero.current.querySelector<HTMLElement>(".hero-stage");
+      if (stage) resizeObserver?.observe(stage);
+    }
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", measureJourney, { passive: true });
     window.addEventListener("pageshow", measureJourney);
     window.visualViewport?.addEventListener("resize", measureJourney);
     measureJourney();
     document.fonts.ready.then(measureJourney);
-    if (!reduced) Promise.all([import("gsap"), import("gsap/ScrollTrigger")]).then(([{ gsap }, { ScrollTrigger }]) => {
-      if (disposed) return;
-      gsap.registerPlugin(ScrollTrigger);
-      const ctx = gsap.context(() => {
-        gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach(el => gsap.from(el, { y: 24, opacity: 0, duration: 0.6, ease: "power3.out", scrollTrigger: { trigger: el, start: "top 92%", once: true } }));
-        gsap.to(".essence-arc", { y: -80, rotation: -8, ease: "none", scrollTrigger: { trigger: "#estudio", start: "top bottom", end: "bottom top", scrub: 0.65 } });
-        ScrollTrigger.refresh();
-      }, root);
-      cleanup = () => ctx.revert();
-      document.fonts.ready.then(() => { if (!disposed) ScrollTrigger.refresh(); });
-    }).catch(() => { /* The native journey and visible content remain available. */ });
+    const initializeDecorations = () => {
+      if (disposed || reduced || decorationsStarted) return;
+      decorationsStarted = true;
+      decorationObserver?.disconnect();
+      void Promise.all([import("gsap"), import("gsap/ScrollTrigger")]).then(([{ gsap }, { ScrollTrigger }]) => {
+        if (disposed) return;
+        gsap.registerPlugin(ScrollTrigger);
+        const ctx = gsap.context(() => {
+          gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach(el => gsap.from(el, { y: 24, opacity: 0, duration: 0.6, ease: "power3.out", scrollTrigger: { trigger: el, start: "top 92%", once: true } }));
+          gsap.to(".essence-arc", { y: -80, rotation: -8, ease: "none", scrollTrigger: { trigger: "#estudio", start: "top bottom", end: "bottom top", scrub: 0.65 } });
+          ScrollTrigger.refresh();
+        }, root);
+        cleanup = () => ctx.revert();
+        document.fonts.ready.then(() => { if (!disposed) ScrollTrigger.refresh(); });
+      }).catch(() => { /* The native journey and visible content remain available. */ });
+    };
+    if (!reduced) {
+      const targets = root.current?.querySelectorAll<HTMLElement>("#estudio, [data-reveal]");
+      if (typeof IntersectionObserver !== "undefined" && targets?.length) {
+        decorationObserver = new IntersectionObserver(entries => {
+          if (entries.some(entry => entry.isIntersecting)) initializeDecorations();
+        }, { rootMargin: "800px 0px", threshold: 0 });
+        targets.forEach(target => decorationObserver!.observe(target));
+      } else initializeDecorations();
+    }
     return () => {
       disposed = true;
+      if (frame) window.cancelAnimationFrame(frame);
       cleanup();
+      decorationObserver?.disconnect();
       resizeObserver?.disconnect();
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", measureJourney);
@@ -153,8 +193,10 @@ export default function HomeExperience() {
       if (progress.current) progress.current.style.transform = "scaleX(" + CHAPTER_STOPS[index] + ")";
       return;
     }
-    const distance = hero.current.offsetHeight - window.innerHeight;
-    window.scrollTo({ top: hero.current.offsetTop + distance * CHAPTER_STOPS[index], behavior: "smooth" });
+    const stage = hero.current.querySelector<HTMLElement>(".hero-stage");
+    const distance = Math.max(1, hero.current.offsetHeight - (stage?.clientHeight || window.innerHeight));
+    const start = window.scrollY + hero.current.getBoundingClientRect().top;
+    window.scrollTo({ top: start + distance * CHAPTER_STOPS[index], behavior: "smooth" });
   }
   return <div ref={root} className="nu-site">
     <a className="skip-link" href="#contenido">Saltar al contenido</a>
@@ -192,17 +234,17 @@ export default function HomeExperience() {
       <section id="servicios" className="services-section section-pad">
         <div className="section-kicker dark" data-reveal><span>02 / LO QUE HACEMOS</span><span>DISEÑO QUE SE VIVE</span></div>
         <div className="section-heading" data-reveal><h2>Cada espacio.<br />Su mejor versión.</h2><p>Desde un ambiente que pide un cambio<br />hasta una transformación completa.</p></div>
-        <div className="services-layout"><div className="services-list">{services.map((s,i) => <details key={s.id} id={"servicio-" + s.id} className="service-item" open={activeService === i}><summary onClick={e => { e.preventDefault(); setActiveService(activeService === i ? -1 : i); }}><span className="service-index">{s.number}</span><h3>{s.short}</h3><span className="service-plus" aria-hidden="true">{activeService === i ? "−" : "+"}</span></summary><div className="service-detail"><p>{s.text}</p><WhatsAppLink className="text-link" topic={s.name.toLowerCase()}>Hablemos de este espacio <Arrow diagonal /></WhatsAppLink></div></details>)}</div><figure className="service-image"><img src={siteUrl(services[Math.max(0, activeService)].image)} alt={"Ambiente de referencia para " + services[Math.max(0, activeService)].name.toLowerCase()} loading="lazy" /><figcaption>AMBIENTE DE REFERENCIA / {services[Math.max(0, activeService)].number}</figcaption><span className="image-corner" aria-hidden="true">↗</span></figure></div>
+        <div className="services-layout"><div className="services-list">{services.map((s,i) => <details key={s.id} id={"servicio-" + s.id} className="service-item" open={activeService === i}><summary onClick={e => { e.preventDefault(); setActiveService(activeService === i ? -1 : i); }}><span className="service-index">{s.number}</span><h3>{s.short}</h3><span className="service-plus" aria-hidden="true">{activeService === i ? "−" : "+"}</span></summary><div className="service-detail"><p>{s.text}</p><WhatsAppLink className="text-link" topic={s.name.toLowerCase()}>Hablemos de este espacio <Arrow diagonal /></WhatsAppLink></div></details>)}</div><figure className="service-image"><img {...responsiveImage(services[Math.max(0, activeService)].image, "(max-width: 800px) calc(100vw - 40px), 50vw")} alt={"Ambiente de referencia para " + services[Math.max(0, activeService)].name.toLowerCase()} loading="lazy" /><figcaption>AMBIENTE DE REFERENCIA / {services[Math.max(0, activeService)].number}</figcaption><span className="image-corner" aria-hidden="true">↗</span></figure></div>
       </section>
       <section id="transformacion" className="transformation section-pad">
         <div className="section-kicker" data-reveal><span>03 / EL PODER DE TRANSFORMAR</span><span>DESLIZA. IMAGINA. DESCUBRE.</span></div>
         <div className="section-heading" data-reveal><h2>El mismo lugar.<br />Otra manera de vivirlo.</h2><p>Un espacio en obra gris es el comienzo<br />de todo lo que puede llegar a ser.</p></div>
-        <div className="before-after" style={{ "--reveal": comparison + "%" } as CSSProperties}><img className="comparison-after" src={siteUrl("/media/transformacion-despues.webp")} alt="Visualización conceptual de cocina terminada con piedra clara y madera oscura" loading="lazy" /><div className="comparison-before"><img src={siteUrl("/media/transformacion-antes.webp")} alt="La misma cocina en una visualización conceptual de obra gris" loading="lazy" /></div><span className="comparison-label before-label">OBRA GRIS</span><span className="comparison-label after-label">NUEVA POSIBILIDAD</span><div className="comparison-line"><span aria-hidden="true">← &nbsp; →</span></div><label className="sr-only" htmlFor="before-after">Comparar obra gris y diseño terminado</label><input id="before-after" type="range" min="0" max="100" value={comparison} onChange={e => setComparison(Number(e.target.value))} aria-valuetext={comparison + "% de la vista de obra gris"} /></div>
+        <div className="before-after" style={{ "--reveal": comparison + "%" } as CSSProperties}><img className="comparison-after" {...responsiveImage("/media/transformacion-despues.webp", "(max-width: 800px) calc(100vw - 40px), 90vw")} alt="Visualización conceptual de cocina terminada con piedra clara y madera oscura" loading="lazy" /><div className="comparison-before"><img {...responsiveImage("/media/transformacion-antes.webp", "(max-width: 800px) calc(100vw - 40px), 90vw")} alt="La misma cocina en una visualización conceptual de obra gris" loading="lazy" /></div><span className="comparison-label before-label">OBRA GRIS</span><span className="comparison-label after-label">NUEVA POSIBILIDAD</span><div className="comparison-line"><span aria-hidden="true">← &nbsp; →</span></div><label className="sr-only" htmlFor="before-after">Comparar obra gris y diseño terminado</label><input id="before-after" type="range" min="0" max="100" value={comparison} onChange={e => setComparison(Number(e.target.value))} aria-valuetext={comparison + "% de la vista de obra gris"} /></div>
         <div className="transformation-note"><p>Visualización conceptual creada con IA. No corresponde a una obra ejecutada ni a un cliente de Nu Casa.</p><WhatsAppLink className="text-link light" topic="un espacio en obra gris">Quiero transformar el mío <Arrow diagonal /></WhatsAppLink></div>
       </section>
       <section id="coleccion" className="collection section-pad">
         <div className="section-kicker dark" data-reveal><span>04 / PIEZAS CON INTENCIÓN</span><span>MOBILIARIO & OBJETOS</span></div>
-        <div className="collection-grid"><div className="collection-copy" data-reveal><h2>Mobiliario<br />que hace<br />tu espacio.</h2><p>Un mueble en L para reunir a todos. Una cocina que funciona contigo. Una pieza para cada momento de tu casa.</p><p>Explora las categorías, abre las imágenes y descubre las posibilidades de cada ambiente.</p><a className="text-link" href="#catalogo">Explorar mobiliario <Arrow diagonal /></a><p className="collection-note">Diseños y visualizaciones de referencia. Cada propuesta se define según tu espacio y tus necesidades.</p></div><div className="collection-object"><Mobiliario3D modelUrl={siteUrl("/media/sofa-l.glb")} /><span className="object-caption">MUEBLE EN L / ARRASTRA PARA EXPLORAR</span></div></div>
+        <div className="collection-grid"><div className="collection-copy" data-reveal><h2>Mobiliario<br />que hace<br />tu espacio.</h2><p>Un mueble en L para reunir a todos. Una cocina que funciona contigo. Una pieza para cada momento de tu casa.</p><p>Explora las categorías, abre las imágenes y descubre las posibilidades de cada ambiente.</p><a className="text-link" href="#catalogo">Explorar mobiliario <Arrow diagonal /></a><p className="collection-note">Diseños y visualizaciones de referencia. Cada propuesta se define según tu espacio y tus necesidades.</p></div><div className="collection-object"><Mobiliario3D modelUrl={siteUrl("/media/sofa-l-optimizado.glb")} /><span className="object-caption">MUEBLE EN L / ARRASTRA PARA EXPLORAR</span></div></div>
         <div id="catalogo" className="catalogue-wrap"><CatalogoMobiliario initialCategory="muebles-tv" availableImages={[
           "/media/catalogo/cocina-1.jpg", "/media/catalogo/tv-1.jpg",
           "/media/catalogo/lampara-1.jpg", "/media/catalogo/silla-1.jpg",
