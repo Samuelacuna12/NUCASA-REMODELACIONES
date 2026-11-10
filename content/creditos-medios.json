@@ -64,5 +64,23 @@
       "uso": "Video de interior optimizado en H.264 para escritorio y móvil, con inicio rápido y búsquedas de tiempo agrupadas. La ficha no especifica técnica de captura o render."
     }
   ],
-  "generacion_conceptual": "Dos imágenes originales con IA, una edición dependiente conserva el mismo encuadre. Rótulo visible en comparador."
+  "generacion_conceptual": "Dos imágenes originales con IA, una edición dependiente conserva el mismo encuadre. Rótulo visible en comparador.",
+  "transformaciones_servicios": {
+    "proveedor": "imagegen integrado",
+    "tipo": "Ocho dípticos conceptuales generados con IA, dos por servicio",
+    "uso": "Comparaciones ilustrativas, no obras ejecutadas ni clientes de Nu Casa",
+    "ids": [
+      "bano-1",
+      "bano-2",
+      "cocina-1",
+      "cocina-2",
+      "integral-1",
+      "integral-2",
+      "obra-gris-1",
+      "obra-gris-2"
+    ],
+    "variantes": "Principal 2172×724; adaptable 1280×427; miniatura 640×213. Cada mitad corresponde a un estado del mismo encuadre conceptual.",
+    "rotulo": "Visualizaciones conceptuales creadas con IA. No corresponden a obras ejecutadas ni a clientes de Nu Casa; ilustran posibilidades y no garantizan un resultado idéntico.",
+    "originales_y_prompts": "Conservados fuera de public, en articulos/transformaciones-servicios/manifest.json."
+  }
 }

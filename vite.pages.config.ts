@@ -20,6 +20,7 @@ export default defineConfig({
       input: {
         home: resolve(root, "index.html"),
         about: resolve(root, "quienes-somos/index.html"),
+        services: resolve(root, "servicios/index.html"),
       },
       output: {
         codeSplitting: {

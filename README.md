@@ -1,6 +1,6 @@
 # nu casa — Remodelaciones
 
-Sitio informativo de Nu Casa, Bucaramanga, con Inicio y Quiénes somos como páginas independientes. Inicio incluye un recorrido arquitectónico fotorrealista controlado con el scroll, cuatro servicios desplegables, comparador conceptual, sofá en L interactivo, catálogo visual con seis categorías y contacto.
+Sitio informativo de Nu Casa, Bucaramanga, con Inicio, Quiénes somos y un índice de Servicios con cuatro subpáginas. Inicio incluye un recorrido arquitectónico fotorrealista controlado con el scroll, cuatro servicios desplegables, comparador conceptual, sofá en L interactivo, catálogo visual con seis categorías y contacto.
 
 ## Desarrollo
 
@@ -17,7 +17,7 @@ La implementación usa React, Vite, GSAP/ScrollTrigger, Three.js y React Three F
 
 Repositorio: https://github.com/Samuelacuna12/NUCASA-REMODELACIONES
 
-`npm run build` genera `out/`: Inicio y Quiénes somos prerenderizados, tres documentos legales completos, archivos optimizados, `.nojekyll`, robots y sitemap con cinco URLs. Los originales de stock y los archivos de trabajo no forman parte de esta salida.
+`npm run build` genera `out/`: Inicio, Quiénes somos, cinco páginas de Servicios y tres documentos legales completos; diez rutas prerenderizadas, archivos optimizados, `.nojekyll`, robots y sitemap. Los originales de stock y los archivos de trabajo no forman parte de esta salida.
 
 La base es `/NUCASA-REMODELACIONES/`. Para otro repositorio o un dominio propio se puede cambiar `PAGES_BASE_PATH` y, cuando corresponda, `PAGES_ORIGIN` al compilar. Cliente y prerenderizado usan la misma configuración de Vite para que medios, estilos, enlaces e hidratación coincidan.
 
@@ -44,28 +44,55 @@ Inicio y Quiénes somos tienen entradas de cliente separadas: ninguna importa el
 
 El HTML de cada página incluye su contenido, canonical, Open Graph y precargas de imagen correspondientes. Las tres páginas legales son HTML completos sin JavaScript ni precargas de módulos o imágenes. La preferencia de movimiento reducido y el consentimiento de privacidad se mantienen entre páginas.
 
+## Servicios
+
+El índice y las cuatro subpáginas comparten `ServicesExperience`, los datos de `content/services.ts`, una entrada de cliente y una hoja de estilos. Cada ruta tiene contenido prerenderizado, título, descripción, canonical, Open Graph y precarga de su propio hero. No cargan el recorrido de Inicio ni el visor 3D.
+
+| Ruta generada, relativa a la base | Contenido |
+| --- | --- |
+| `/` | Inicio |
+| `/quienes-somos/` | Quiénes somos |
+| `/servicios/` | Índice de servicios |
+| `/servicios/remodelaciones-de-bano/` | Remodelaciones de baño |
+| `/servicios/remodelaciones-de-cocina/` | Remodelaciones de cocina |
+| `/servicios/remodelaciones-completas/` | Remodelaciones completas |
+| `/servicios/de-obra-gris-a-espectaculo/` | De obra gris a espectáculo |
+| `/legal/privacidad/` | Privacidad y tratamiento de datos |
+| `/legal/cookies/` | Cookies y almacenamiento local |
+| `/legal/terminos/` | Términos de uso |
+
+La plantilla fuente `servicios/index.html` se utiliza para generar cinco archivos físicos `index.html`. El índice conserva `data-service-id=""` en `#root`; las subpáginas reciben `banos`, `cocinas`, `completas` u `obra-gris`. El cliente lee ese atributo y entrega el mismo `serviceId` al componente que se utilizó en el prerenderizado. Para comprobar las rutas anidadas generadas se debe usar `npm run build` y después `npm run preview`.
+
+Inicio y Quiénes somos enlazan al índice de Servicios. El desplegable de Inicio y sus acordeones también enlazan a las fichas individuales, conservando el acceso a WhatsApp. Los enlaces de contacto y catálogo siguen apuntando a las secciones de Inicio; las rutas independientes de tienda y contacto continúan previstas para fases siguientes.
+
+Las tres familias de cliente —Inicio, Quiénes somos y Servicios— tienen entradas separadas. Los datos comerciales completos no se importan en Inicio ni en Quiénes somos; se reutilizan únicamente dentro de la familia de Servicios y en el prerenderizado de servidor. Los trabajos, materiales, suministros y condiciones de cada proyecto se concretan en su propuesta.
+
 ## Contenido y recursos
 
 - app/HomeExperience.tsx: página de inicio e interacciones.
 - app/AboutExperience.tsx y app/about.css: Quiénes somos, sus seis secciones y adaptación responsive.
+- app/ServicesExperience.tsx y app/services.css: índice y cuatro páginas de servicios.
 - app/nucasa.css: identidad visual y adaptación responsive.
 - components/DeferredMobiliario3D.tsx: difiere la descarga y evaluación de todo el visor hasta acercarse a la sección.
 - components/Mobiliario3D.tsx: GLB, iluminación, acabado fijo, controles de vista y carga al entrar en pantalla.
 - components/PhotorealWalkthrough.tsx: video de interior licenciado, poster inmediato y búsquedas de tiempo agrupadas. El navegador decodifica el video nativamente; el scroll controla su posición.
 - components/CatalogoMobiliario.tsx: filtros de categorías, fotografías y detalles ampliables dentro de la página.
 - components/AboutFurniture.tsx y components/about-furniture.module.css: anotaciones editoriales sobre el modelo de referencia de Quiénes somos.
-- components/SitePrivacy.tsx: banner y diálogo de privacidad de Quiénes somos, con el mismo registro y caducidad que Inicio.
+- components/SitePrivacy.tsx: banner y diálogo de privacidad reutilizables en las páginas interiores, con el mismo registro y caducidad que Inicio.
 - pages/entry-client.tsx: hidratación de la página de inicio.
 - pages/about-client.tsx: hidratación independiente de Quiénes somos.
-- pages/entry-server.tsx y pages/LegalStatic.tsx: prerenderizado de Inicio, Quiénes somos y los documentos legales completos.
+- pages/services-client.tsx: hidratación de la familia de Servicios a partir del identificador del HTML.
+- pages/entry-server.tsx y pages/LegalStatic.tsx: prerenderizado de Inicio, Quiénes somos, Servicios y los documentos legales completos.
 - quienes-somos/index.html: plantilla de la nueva ruta, con precargas de hero para escritorio y móvil.
+- servicios/index.html: plantilla común del índice y las cuatro subpáginas de Servicios.
 - scripts/build-pages.mjs y vite.pages.config.ts: compilación estática para el subdirectorio del repositorio.
 - app/legal/[slug]/page.tsx: ruta de la integración heredada.
 - content/legal.json: datos reales del responsable y textos de privacidad, cookies y términos.
+- content/services.ts: datos tipados, slugs, contenido y metadatos de los cuatro servicios.
 - content/estructura-web.json: arquitectura prevista para la ampliación de la web.
 - public/brand: SVG oficiales con currentColor.
 - public/fonts: Manrope local y licencia OFL.
-- public/media: derivados optimizados para ambas páginas; public/media/about contiene los ambientes y muestras de Quiénes somos.
+- public/media: derivados optimizados para las páginas; public/media/about contiene los ambientes y muestras de Quiénes somos.
 
 Los originales descargados y su manifiesto de procedencia permanecen fuera del sitio, en la carpeta hermana articulos. No se publican los ZIP originales ni se ofrecen recursos de stock para descarga.
 
@@ -97,6 +124,19 @@ React y los módulos compartidos del visor se separan del código de la página.
 Los diagnósticos de video y 3D se habilitan con `?rendimiento=1`; la visita normal no escribe contadores por cuadro. Los archivos anteriores se conservan una versión para que los clientes con HTML/JS en caché sigan funcionando: su presencia en `public/` no implica que la versión nueva los descargue.
 
 Las reducciones de bytes y memoria no equivalen a un porcentaje universal de mejora en segundos o FPS. El resultado también depende del dispositivo y la conexión.
+
+### Servicios: revisión final del 10 de noviembre de 2026
+
+Los heroes de baño y remodelación completa tienen derivados propios y variantes de 640 píxeles. La precarga del HTML utiliza el mismo `srcset` y `sizes` que la imagen visible.
+
+| Hero | Antes | Ahora | Variante de 640 px |
+| --- | ---: | ---: | ---: |
+| Baño | 217.586 B | 111.406 B | 42.122 B |
+| Remodelación completa | 159.522 B | 59.838 B | 26.162 B |
+
+Las ocho miniaturas de los comparadores suman 85.994 B; las imágenes grandes conservan variantes responsive y se cargan al necesitarlas. La familia de Servicios comparte 80.514 B gzip de JavaScript inicial y 15.238 B gzip de CSS, sin importar el recorrido ni el visor 3D de Inicio.
+
+La transferencia crítica estimada del índice de Servicios es de 155.116–193.502 B; la ficha de baño, 176.312–245.596 B; y remodelación completa, 160.549–194.225 B. Se suman HTML, JavaScript estático y CSS con gzip nivel 9, la fuente WOFF2 y una sola variante del hero. No incluye cabeceras, fotos diferidas, video o 3D; no representa una medición de red ni de tiempo de carga. La auditoría estática final verificó diez rutas, 552 referencias internas HTML/CSS y 124 enlaces con ancla, sin archivos ni destinos faltantes.
 
 ## Criterios de interacción
 

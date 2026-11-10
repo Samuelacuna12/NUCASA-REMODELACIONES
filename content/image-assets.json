@@ -200,5 +200,35 @@
         "width": 1280
       }
     ]
+  },
+  "/media/servicios/bano-hero.webp": {
+    "src": "/media/servicios/bano-hero.webp",
+    "width": 1100,
+    "height": 733,
+    "variants": [
+      {
+        "src": "/media/servicios/bano-hero-640.webp",
+        "width": 640
+      },
+      {
+        "src": "/media/servicios/bano-hero.webp",
+        "width": 1100
+      }
+    ]
+  },
+  "/media/servicios/completas-hero.webp": {
+    "src": "/media/servicios/completas-hero.webp",
+    "width": 960,
+    "height": 1200,
+    "variants": [
+      {
+        "src": "/media/servicios/completas-hero-640.webp",
+        "width": 640
+      },
+      {
+        "src": "/media/servicios/completas-hero.webp",
+        "width": 960
+      }
+    ]
   }
 }

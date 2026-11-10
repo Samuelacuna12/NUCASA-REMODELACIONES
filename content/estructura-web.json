@@ -1,23 +1,26 @@
 {
-  "estado": "Primera versión de la página de inicio",
+  "estado": "Inicio, Quiénes somos y Servicios implementados; diez rutas estáticas generadas al compilar",
   "paginas": [
     {
       "nombre": "Inicio",
-      "ruta": "/"
+      "ruta": "/",
+      "estado": "implementada"
     },
     {
       "nombre": "Quiénes somos",
-      "ruta": "/quienes-somos"
+      "ruta": "/quienes-somos/",
+      "estado": "implementada"
     },
     {
       "nombre": "Servicios",
-      "ruta": "/servicios",
+      "ruta": "/servicios/",
       "subpaginas": [
         "remodelaciones-de-bano",
         "remodelaciones-de-cocina",
         "remodelaciones-completas",
         "de-obra-gris-a-espectaculo"
-      ]
+      ],
+      "estado": "implementada"
     },
     {
       "nombre": "Tienda online",
@@ -29,16 +32,33 @@
         "Sillas",
         "Comedores",
         "Muebles"
-      ]
+      ],
+      "estado": "prevista",
+      "disponibleEn": "/#coleccion"
     },
     {
       "nombre": "Remodelaciones hechas",
-      "ruta": "/remodelaciones-hechas"
+      "ruta": "/remodelaciones-hechas",
+      "estado": "prevista"
     },
     {
       "nombre": "Contacto",
-      "ruta": "/contacto"
+      "ruta": "/contacto",
+      "estado": "prevista",
+      "disponibleEn": "/#contacto"
     }
   ],
-  "nota": "La navegación de esta primera versión recorre las secciones del inicio. Las páginas interiores y la venta online se desarrollan en fases siguientes."
+  "nota": "El build genera Inicio, Quiénes somos, el índice y cuatro fichas de Servicios, además de tres documentos legales. Inicio, Quiénes somos y Servicios tienen entradas de cliente separadas. Contacto y catálogo siguen disponibles en las secciones del inicio. La venta online y las demás páginas previstas se desarrollan en fases siguientes.",
+  "rutas_estaticas": [
+    "/",
+    "/quienes-somos/",
+    "/servicios/",
+    "/servicios/remodelaciones-de-bano/",
+    "/servicios/remodelaciones-de-cocina/",
+    "/servicios/remodelaciones-completas/",
+    "/servicios/de-obra-gris-a-espectaculo/",
+    "/legal/privacidad/",
+    "/legal/cookies/",
+    "/legal/terminos/"
+  ]
 }
