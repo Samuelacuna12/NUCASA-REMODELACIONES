@@ -1,6 +1,6 @@
 # nu casa — Remodelaciones
 
-Página de inicio para Nu Casa, Bucaramanga. Incluye un recorrido arquitectónico fotorrealista controlado con el scroll, cuatro servicios desplegables, comparador conceptual, sofá en L interactivo, catálogo visual con seis categorías y contacto.
+Sitio informativo de Nu Casa, Bucaramanga, con Inicio y Quiénes somos como páginas independientes. Inicio incluye un recorrido arquitectónico fotorrealista controlado con el scroll, cuatro servicios desplegables, comparador conceptual, sofá en L interactivo, catálogo visual con seis categorías y contacto.
 
 ## Desarrollo
 
@@ -17,7 +17,7 @@ La implementación usa React, Vite, GSAP/ScrollTrigger, Three.js y React Three F
 
 Repositorio: https://github.com/Samuelacuna12/NUCASA-REMODELACIONES
 
-`npm run build` genera `out/`: inicio prerenderizado, tres documentos legales completos, archivos optimizados, `.nojekyll`, robots y sitemap. Los originales de stock y los archivos de trabajo no forman parte de esta salida.
+`npm run build` genera `out/`: Inicio y Quiénes somos prerenderizados, tres documentos legales completos, archivos optimizados, `.nojekyll`, robots y sitemap con cinco URLs. Los originales de stock y los archivos de trabajo no forman parte de esta salida.
 
 La base es `/NUCASA-REMODELACIONES/`. Para otro repositorio o un dominio propio se puede cambiar `PAGES_BASE_PATH` y, cuando corresponda, `PAGES_ORIGIN` al compilar. Cliente y prerenderizado usan la misma configuración de Vite para que medios, estilos, enlaces e hidratación coincidan.
 
@@ -27,23 +27,45 @@ Dirección prevista una vez activada la publicación: https://samuelacuna12.gith
 
 La activación de Pages depende de la visibilidad del repositorio y del plan de GitHub. La existencia del repositorio o de la rama compilada no significa que la dirección ya esté publicada.
 
+## Quiénes somos
+
+La ruta `/quienes-somos/` se publica como un archivo físico en `out/quienes-somos/index.html`, bajo la misma base del repositorio. Se accede desde la navegación de escritorio y móvil de Inicio y desde el enlace «Conoce nuestra mirada» de su sección editorial.
+
+La página contiene seis secciones:
+
+1. **Nuestra mirada:** apertura «Cada decisión se vive», fotografía de referencia y navegación por capítulos.
+2. **El origen:** exploración conceptual de idea, materiales y transformación, con controles de etapas y muestras de material.
+3. **Nuestro criterio:** distribución, materiales y detalles; permite cambiar el encuadre de un mismo ambiente y explorar puntos de interés.
+4. **Espacios y piezas:** el sofá en L interactivo incorpora anotaciones sobre configuración, proporción y acabado. No configura ni personaliza un producto.
+5. **Contigo:** paneles de alcance, materiales y ejecución para explicar cómo se conversa sobre las decisiones del proyecto.
+6. **Tu próxima casa:** selección del espacio y nota opcional para preparar una consulta en WhatsApp. El visitante confirma el envío en WhatsApp.
+
+Inicio y Quiénes somos tienen entradas de cliente separadas: ninguna importa el módulo de la otra página. Comparten React, utilidades y estilos base; About añade su propia hoja de estilos. El visor 3D sigue cargándose al acercarse a él. La entrada de servidor reúne ambas páginas únicamente para prerenderizarlas durante la compilación.
+
+El HTML de cada página incluye su contenido, canonical, Open Graph y precargas de imagen correspondientes. Las tres páginas legales son HTML completos sin JavaScript ni precargas de módulos o imágenes. La preferencia de movimiento reducido y el consentimiento de privacidad se mantienen entre páginas.
+
 ## Contenido y recursos
 
 - app/HomeExperience.tsx: página de inicio e interacciones.
+- app/AboutExperience.tsx y app/about.css: Quiénes somos, sus seis secciones y adaptación responsive.
 - app/nucasa.css: identidad visual y adaptación responsive.
 - components/DeferredMobiliario3D.tsx: difiere la descarga y evaluación de todo el visor hasta acercarse a la sección.
 - components/Mobiliario3D.tsx: GLB, iluminación, acabado fijo, controles de vista y carga al entrar en pantalla.
 - components/PhotorealWalkthrough.tsx: video de interior licenciado, poster inmediato y búsquedas de tiempo agrupadas. El navegador decodifica el video nativamente; el scroll controla su posición.
 - components/CatalogoMobiliario.tsx: filtros de categorías, fotografías y detalles ampliables dentro de la página.
+- components/AboutFurniture.tsx y components/about-furniture.module.css: anotaciones editoriales sobre el modelo de referencia de Quiénes somos.
+- components/SitePrivacy.tsx: banner y diálogo de privacidad de Quiénes somos, con el mismo registro y caducidad que Inicio.
 - pages/entry-client.tsx: hidratación de la página de inicio.
-- pages/entry-server.tsx y pages/LegalStatic.tsx: prerenderizado del inicio y los documentos legales completos.
+- pages/about-client.tsx: hidratación independiente de Quiénes somos.
+- pages/entry-server.tsx y pages/LegalStatic.tsx: prerenderizado de Inicio, Quiénes somos y los documentos legales completos.
+- quienes-somos/index.html: plantilla de la nueva ruta, con precargas de hero para escritorio y móvil.
 - scripts/build-pages.mjs y vite.pages.config.ts: compilación estática para el subdirectorio del repositorio.
 - app/legal/[slug]/page.tsx: ruta de la integración heredada.
 - content/legal.json: datos reales del responsable y textos de privacidad, cookies y términos.
-- content/estructura-web.json: arquitectura de la futura web multipágina.
+- content/estructura-web.json: arquitectura prevista para la ampliación de la web.
 - public/brand: SVG oficiales con currentColor.
 - public/fonts: Manrope local y licencia OFL.
-- public/media: derivados optimizados para esta página.
+- public/media: derivados optimizados para ambas páginas; public/media/about contiene los ambientes y muestras de Quiénes somos.
 
 Los originales descargados y su manifiesto de procedencia permanecen fuera del sitio, en la carpeta hermana articulos. No se publican los ZIP originales ni se ofrecen recursos de stock para descarga.
 
@@ -90,7 +112,7 @@ La elección de privacidad se guarda con versión y caducidad de 180 días. Las 
 
 Responsable: Omar Gonzalez; identificación 1098623128. Correo: nucasa@gmail.com. Dirección: Carrera 29 #30-39, barrio La Aurora, Bucaramanga. Teléfono: +57 321 307 8837.
 
-La tienda, carrito, pagos y contratos electrónicos no se han habilitado en esta primera fase. Antes de incorporarlos se debe confirmar RUT/NIT y completar las condiciones comerciales correspondientes. Los documentos actuales cubren el inicio informativo y el contacto.
+La tienda, carrito, pagos y contratos electrónicos no se han habilitado en esta primera fase. Antes de incorporarlos se debe confirmar RUT/NIT y completar las condiciones comerciales correspondientes. Los documentos actuales cubren las páginas informativas y el contacto.
 
 La pieza de Envato se utiliza como exhibición interactiva, sin personalización de un producto a pedido, exportación ni descarga del modelo en la interfaz. Para un configurador comercial se emplearán modelos propios o con derechos específicos.
 

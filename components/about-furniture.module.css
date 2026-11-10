@@ -1,0 +1,202 @@
+.module {
+  --about-ink: #111110;
+  --about-ivory: #f2eddf;
+  --about-stone: #c8bcaa;
+  display: grid;
+  grid-template-columns: minmax(0, 1.75fr) minmax(260px, 0.9fr);
+  align-items: stretch;
+  gap: clamp(30px, 4.5vw, 72px);
+  width: 100%;
+  min-width: 0;
+  color: var(--about-ivory);
+  background: var(--about-ink);
+}
+
+.viewerSurface {
+  position: relative;
+  min-width: 0;
+  color: var(--about-ink);
+  background: var(--about-ivory);
+  isolation: isolate;
+}
+
+.viewer { padding: 20px clamp(18px, 2vw, 30px) 12px; }
+
+.connections {
+  position: absolute;
+  inset: 20px 0 50px;
+  width: 100%;
+  height: calc(100% - 70px);
+  overflow: visible;
+  pointer-events: none;
+}
+
+.connection,
+.activeConnection {
+  fill: var(--about-ivory);
+  stroke: var(--about-ink);
+  stroke-width: 1;
+  opacity: 0.23;
+  transition: opacity 160ms ease;
+}
+
+.connection path,
+.activeConnection path { fill: none; vector-effect: non-scaling-stroke; }
+.activeConnection { opacity: 0.65; }
+
+.hotspots { position: absolute; inset: 20px 0 50px; pointer-events: none; }
+
+.hotspot {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: var(--about-ink);
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.configuration { top: 38%; left: 16px; }
+.proportion { right: 16px; top: 63%; }
+.finish { right: 16px; top: 24%; }
+
+.marker {
+  display: grid;
+  place-items: center;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(17, 17, 16, 0.55);
+  border-radius: 50%;
+  background: var(--about-ivory);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  transition: color 160ms ease, background-color 160ms ease;
+}
+
+.hotspotLabel {
+  max-width: 13ch;
+  padding: 5px 7px 5px 0;
+  background: var(--about-ivory);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.hotspot[aria-pressed="true"] .marker { color: var(--about-ivory); background: var(--about-ink); }
+.hotspot:focus-visible { outline: 2px solid var(--about-ink); outline-offset: 5px; }
+
+.details {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  padding: 35px 0;
+}
+
+.details .instruction {
+  margin: 0 0 36px;
+  color: var(--about-stone);
+  font-size: 11px;
+  line-height: 1.5;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.panel { min-height: 252px; }
+
+.details .detailLabel {
+  margin: 0 0 22px;
+  color: var(--about-stone);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.detailLabel > span { padding-right: 6px; color: var(--about-ivory); }
+
+.title {
+  max-width: 16ch;
+  margin: 0;
+  color: var(--about-ivory);
+  font-size: clamp(28px, 2.8vw, 40px);
+  font-weight: 400;
+  line-height: 1.12;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+
+.details .description {
+  max-width: 36ch;
+  margin: 24px 0 0;
+  color: var(--about-stone);
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.details .referenceNote {
+  max-width: 35ch;
+  margin: 30px 0 0;
+  padding-top: 20px;
+  border-top: 1px solid rgba(242, 237, 223, 0.24);
+  color: var(--about-stone);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+@media (max-width: 1100px) {
+  .module { grid-template-columns: minmax(0, 1fr); gap: 30px; }
+  .details { padding: 8px 0 0; }
+  .details .instruction { margin-bottom: 25px; }
+  .panel { min-height: 205px; }
+  .title { max-width: 24ch; font-size: 34px; }
+  .details .description { max-width: 55ch; }
+  .details .referenceNote { max-width: none; margin-top: 22px; }
+}
+
+@media (max-width: 700px) {
+  .viewer { padding: 16px 16px 0; }
+  .connections { display: none; }
+  .hotspots {
+    position: relative;
+    inset: auto;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    padding: 0 16px 20px;
+  }
+  .hotspot {
+    position: static;
+    flex-direction: column;
+    gap: 8px;
+    justify-content: flex-start;
+    min-height: 88px;
+    padding: 3px 0;
+    text-align: center;
+  }
+  .hotspotLabel { max-width: 13ch; padding: 0; font-size: 11px; }
+  .hotspot:focus-visible { outline-offset: 1px; }
+  .panel { min-height: 260px; }
+  .title { max-width: 18ch; font-size: 30px; }
+  .details .description { max-width: 43ch; font-size: 14px; line-height: 1.8; }
+  .details .referenceNote { margin-top: 12px; }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hotspot:hover .marker { color: var(--about-ivory); background: var(--about-ink); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marker,
+  .connection,
+  .activeConnection { transition: none; }
+}
