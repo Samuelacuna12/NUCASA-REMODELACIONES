@@ -19,13 +19,11 @@ Repositorio: https://github.com/Samuelacuna12/NUCASA-REMODELACIONES
 
 `npm run build` genera `out/`: Inicio, Quiénes somos, cinco páginas de Servicios y tres documentos legales completos; diez rutas prerenderizadas, archivos optimizados, `.nojekyll`, robots y sitemap. Los originales de stock y los archivos de trabajo no forman parte de esta salida.
 
-La base es `/NUCASA-REMODELACIONES/`. Para otro repositorio o un dominio propio se puede cambiar `PAGES_BASE_PATH` y, cuando corresponda, `PAGES_ORIGIN` al compilar. Cliente y prerenderizado usan la misma configuración de Vite para que medios, estilos, enlaces e hidratación coincidan.
+El dominio principal es https://nucasaremodelaciones.com/. La base predeterminada es `/` y el origen de metadatos, robots y sitemap es `https://nucasaremodelaciones.com`. `PAGES_BASE_PATH` y `PAGES_ORIGIN` permiten compilar para otros destinos.
 
-La rama `main` contiene las fuentes. La rama `gh-pages` contiene solamente el contenido compilado de `out/`. En Settings → Pages, el origen de publicación debe ser `gh-pages` y la carpeta `/ (root)`. Una actualización de las fuentes requiere volver a compilar y actualizar esa rama.
+La rama `main` contiene las fuentes. GitHub Actions instala las dependencias fijadas, compila `out/`, valida rutas y recursos, y despliega GitHub Pages automáticamente al actualizar `main`. En Settings → Pages, el origen de publicación es **GitHub Actions** y el dominio personalizado es **nucasaremodelaciones.com**. La rama `gh-pages` se conserva como publicación anterior, pero ya no es el origen activo.
 
-Dirección prevista una vez activada la publicación: https://samuelacuna12.github.io/NUCASA-REMODELACIONES/
-
-La activación de Pages depende de la visibilidad del repositorio y del plan de GitHub. La existencia del repositorio o de la rama compilada no significa que la dirección ya esté publicada.
+La compilación incluye `CNAME`, `.nojekyll`, robots y sitemap. Los registros DNS del dominio y de `www` apuntan a GitHub Pages desde Hostinger.
 
 ## Quiénes somos
 

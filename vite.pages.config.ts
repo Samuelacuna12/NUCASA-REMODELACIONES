@@ -4,7 +4,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 const root = fileURLToPath(new URL(".", import.meta.url));
-const requestedBase = process.env.PAGES_BASE_PATH || "/NUCASA-REMODELACIONES/";
+const requestedBase = process.env.PAGES_BASE_PATH || "/";
 const base = "/" + requestedBase.replace(/^\/+|\/+$/g, "") + "/";
 
 /** The GitHub Pages target has no server or hosting-service dependency. */

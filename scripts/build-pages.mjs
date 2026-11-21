@@ -7,8 +7,8 @@ const root = fileURLToPath(new URL("../", import.meta.url));
 const configFile = resolve(root, "vite.pages.config.ts");
 const temporary = resolve(root, ".pages-ssr");
 const output = resolve(root, "out");
-const base = ("/" + (process.env.PAGES_BASE_PATH || "/NUCASA-REMODELACIONES/").replace(/^\/+|\/+$/g, "") + "/").replace(/\/{2,}/g, "/");
-const origin = process.env.PAGES_ORIGIN || "https://samuelacuna12.github.io";
+const base = ("/" + (process.env.PAGES_BASE_PATH || "/").replace(/^\/+|\/+$/g, "") + "/").replace(/\/{2,}/g, "/");
+const origin = process.env.PAGES_ORIGIN || "https://nucasaremodelaciones.com";
 const legal = JSON.parse(await readFile(resolve(root, "content/legal.json"), "utf8"));
 const images = JSON.parse(await readFile(resolve(root, "content/image-assets.json"), "utf8"));
 const escape = (text) => text.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
@@ -113,6 +113,7 @@ try {
       .replace("<!--page-html-->", renderLegal(doc.id)));
   }
   await writeFile(resolve(output, ".nojekyll"), "");
+  await writeFile(resolve(output, "CNAME"), new URL(origin).hostname + "\n");
   await writeFile(resolve(output, "robots.txt"), `User-agent: *\nAllow: /\nSitemap: ${new URL(base + "sitemap.xml", origin).href}\n`);
   const urls = ["", "quienes-somos/", ...servicePaths, ...legal.documents.map((doc) => "legal/" + doc.id + "/")];
   await writeFile(resolve(output, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map((path) => "<url><loc>" + escape(new URL(base + path, origin).href) + "</loc></url>").join("")}</urlset>\n`);
