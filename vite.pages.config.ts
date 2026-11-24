@@ -1,11 +1,18 @@
+import { globSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { resolve } from "node:path";
+import { basename, dirname, resolve } from "node:path";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 const root = fileURLToPath(new URL(".", import.meta.url));
 const requestedBase = process.env.PAGES_BASE_PATH || "/";
 const base = "/" + requestedBase.replace(/^\/+|\/+$/g, "") + "/";
+const quoteEntries = Object.fromEntries(
+  globSync("cotizaciones/*/index.html", { cwd: root }).map((path) => [
+    `quote-${basename(dirname(path))}`,
+    resolve(root, path),
+  ]),
+);
 
 /** The GitHub Pages target has no server or hosting-service dependency. */
 export default defineConfig({
@@ -21,6 +28,7 @@ export default defineConfig({
         home: resolve(root, "index.html"),
         about: resolve(root, "quienes-somos/index.html"),
         services: resolve(root, "servicios/index.html"),
+        ...quoteEntries,
       },
       output: {
         codeSplitting: {
