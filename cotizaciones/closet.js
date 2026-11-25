@@ -35,14 +35,14 @@
     },
     "03": {
       name: "Principal · Puertas lisas con módulo lateral",
-      mechanism: "Dos puertas altas cubren los colgaderos y cuatro cajones. El módulo lateral extraíble incluye un zapatero.",
+      mechanism: "Dos puertas altas corredizas cubren los colgaderos y cajones. El diseño incluye un zapatero abatible.",
       dimensions: [222, 170, 60],
       compartments: [[0, 0, 17, 100], [17, 0, 41, 100], [58, 0, 42, 100]],
       dividers: [17, 58],
       shelves: [[18, 20, 82], [0, 13, 17], [0, 24, 17], [0, 35, 17], [0, 46, 17], [0, 57, 17], [0, 68, 17], [0, 79, 17], [0, 90, 17]],
       rails: [[20, 26, 35], [61, 26, 35]],
       drawers: [[59, 58, 41, 9], [59, 68, 41, 9], [59, 78, 41, 9], [59, 88, 41, 9]],
-      fronts: [[0, 0, 17, 100, "hinge-left", "right"], [17, 0, 41, 100, "hinge-left", "right"], [58, 0, 42, 100, "hinge-right", "left"]],
+      fronts: [[0, 0, 51, 100, "slide", "left", 92], [49, 0, 51, 100, "slide", "right", -92]],
       assembly: ["Se arma la estructura del clóset.", "Se distribuyen las barras, las repisas y los cajones.", "Se ajustan los frentes y las manijas."],
     },
     "04": {
