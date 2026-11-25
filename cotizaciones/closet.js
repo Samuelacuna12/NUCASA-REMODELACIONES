@@ -35,7 +35,7 @@
     },
     "03": {
       name: "Principal · Puertas lisas con módulo lateral",
-      mechanism: "Dos puertas altas corredizas cubren los colgaderos y cajones. El diseño incluye un zapatero abatible.",
+      mechanism: "Dos puertas corredizas de piso a techo cubren los colgaderos y cajones. El diseño incluye un zapatero abatible.",
       dimensions: [222, 170, 60],
       compartments: [[0, 0, 17, 100], [17, 0, 41, 100], [58, 0, 42, 100]],
       dividers: [17, 58],
