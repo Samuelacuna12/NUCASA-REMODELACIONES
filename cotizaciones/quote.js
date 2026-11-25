@@ -1,5 +1,6 @@
 function initializeQuote(quote) {
   const options = Array.from(quote.querySelectorAll('input[type="checkbox"][data-quote-option]'));
+  const light = quote.querySelector("[data-quote-light]");
   const total = quote.querySelector('[data-quote-total]');
   const count = quote.querySelector('[data-quote-count]');
   const selection = quote.querySelector('[data-quote-selection]');
@@ -13,8 +14,14 @@ function initializeQuote(quote) {
 
   function updateSelection() {
     const selected = options.filter(({ checked }) => checked);
-    const amount = selected.reduce((sum, { dataset }) => sum + Number(dataset.price), 0);
-    const names = listFormat.format(selected.map(({ dataset }) => dataset.label));
+    const principal = selected.find(({ dataset }) => dataset.quoteGroup === "principal");
+    if (light) {
+      light.disabled = !principal;
+      if (!principal) light.checked = false;
+    }
+    const extra = light?.checked ? Number(light.dataset.price) : 0;
+    const amount = selected.reduce((sum, { dataset }) => sum + Number(dataset.price), extra);
+    const names = listFormat.format(selected.map(option => option.dataset.label + (extra && option === principal ? " con iluminación interior (+$250.000 COP)" : "")));
 
     if (total) total.textContent = selected.length ? `$${priceFormat.format(amount)} COP` : 'Por definir';
     if (count) {
@@ -74,6 +81,7 @@ function initializeQuote(quote) {
   }
 
   for (const choice of quote.querySelectorAll('[data-quote-choice]')) choice.hidden = false;
+  light?.addEventListener("change", updateSelection);
   resetSelection();
 }
 

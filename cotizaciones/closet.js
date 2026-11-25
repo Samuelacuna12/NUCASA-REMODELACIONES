@@ -22,27 +22,42 @@
       ],
     },
     "02": {
-      name: "Principal · Puertas con espejo",
-      mechanism: "Puertas corredizas sobre rieles de aluminio, con espejos en el centro.",
-      dimensions: [222, 170, 60],
-      compartments: [[0, 0, 25, 100], [26, 0, 48, 100], [75, 0, 25, 100]],
-      dividers: [25, 74],
-      shelves: [[0, 19, 25], [0, 63, 25], [75, 19, 25], [75, 55, 25], [75, 70, 25], [75, 84, 25]],
-      rails: [[4, 25, 15], [80, 25, 15]],
-      drawers: [[0, 65, 25, 11], [0, 77, 25, 11], [0, 89, 25, 11]],
-      fronts: [
-        [0, 0, 25, 100, "slide", "left", 100],
-        [25, 0, 25, 100, "fixed", "right", 0, "mirror"],
-        [50, 0, 25, 100, "fixed", "left", 0, "mirror"],
-        [75, 0, 25, 100, "slide", "right", -100],
-      ],
-      assembly: [
-        "La base, los laterales y la cubierta forman el cuerpo empotrado.",
-        "Se colocan los compartimientos interiores y los rieles de aluminio.",
-        "Se instalan los frentes corredizos, con espejo en los paneles centrales.",
-      ],
+      name: "Principal · Corredizo con zapatero",
+      mechanism: "Una puerta corrediza descubre el doble colgadero. Al otro lado, tres cajones y un zapatero extraíble organizan la ropa y el calzado.",
+      dimensions: null,
+      compartments: [[0, 0, 52, 100], [52, 0, 26, 100], [78, 0, 22, 100]],
+      dividers: [52, 78],
+      shelves: [[0, 20, 100], [52, 42, 26], [52, 55, 26], [79, 30, 21], [79, 40, 21], [79, 50, 21], [79, 60, 21], [79, 70, 21], [79, 80, 21], [79, 90, 21]],
+      rails: [[3, 27, 46], [3, 65, 46]],
+      drawers: [[53, 58, 25, 11], [53, 70, 25, 11], [53, 82, 25, 11]],
+      fronts: [[0, 20, 50, 80, "slide", "right", 85], [50, 20, 28, 80, "slide", "left", -100], [78, 20, 22, 80, "hinge-right", "left"], [0.0, 0, 25.0, 20, "hinge-left", "right"], [25.0, 0, 25.0, 20, "hinge-left", "right"], [50.0, 0, 25.0, 20, "hinge-left", "right"], [75.0, 0, 25.0, 20, "hinge-left", "right"]],
+      assembly: ["Se arma la estructura del clóset.", "Se distribuyen las barras, las repisas y los cajones.", "Se ajustan los frentes y las manijas."],
     },
     "03": {
+      name: "Principal · Puertas lisas con módulo lateral",
+      mechanism: "Dos puertas altas cubren los colgaderos y cuatro cajones. El módulo lateral extraíble reúne las repisas en un solo lugar.",
+      dimensions: null,
+      compartments: [[0, 0, 17, 100], [17, 0, 41, 100], [58, 0, 42, 100]],
+      dividers: [17, 58],
+      shelves: [[18, 20, 82], [0, 13, 17], [0, 24, 17], [0, 35, 17], [0, 46, 17], [0, 57, 17], [0, 68, 17], [0, 79, 17], [0, 90, 17]],
+      rails: [[20, 26, 35], [61, 26, 35]],
+      drawers: [[59, 58, 41, 9], [59, 68, 41, 9], [59, 78, 41, 9], [59, 88, 41, 9]],
+      fronts: [[0, 0, 17, 100, "hinge-left", "right"], [17, 0, 41, 100, "hinge-left", "right"], [58, 0, 42, 100, "hinge-right", "left"]],
+      assembly: ["Se arma la estructura del clóset.", "Se distribuyen las barras, las repisas y los cajones.", "Se ajustan los frentes y las manijas."],
+    },
+    "04": {
+      name: "Principal · Cuatro puertas con altillo",
+      mechanism: "Cuatro puertas con manijas negras dan acceso a tres módulos con barras, cajones centrales y repisas para zapatos.",
+      dimensions: null,
+      compartments: [[0, 0, 33, 100], [33, 0, 33, 100], [66, 0, 34, 100]],
+      dividers: [33, 66],
+      shelves: [[0, 20, 100], [0, 61, 33], [67, 70, 33], [67, 85, 33]],
+      rails: [[3, 28, 26], [3, 67, 26], [36, 28, 26], [69, 28, 26]],
+      drawers: [[34, 60, 32, 9], [34, 70, 32, 9], [34, 80, 32, 9], [34, 90, 32, 9]],
+      fronts: [[0, 20, 25, 80, "hinge-left", "right"], [25, 20, 25, 80, "hinge-right", "left"], [50, 20, 25, 80, "hinge-left", "right"], [75, 20, 25, 80, "hinge-right", "left"], [0.0, 0, 33.333333333333336, 20, "hinge-left", "right"], [33.333333333333336, 0, 33.333333333333336, 20, "hinge-left", "right"], [66.66666666666667, 0, 33.333333333333336, 20, "hinge-left", "right"]],
+      assembly: ["Se arma la estructura del clóset.", "Se distribuyen las barras, las repisas y los cajones.", "Se ajustan los frentes y las manijas."],
+    },
+    "05": {
       name: "Habitación auxiliar 1",
       mechanism: "Puertas corredizas con riel superior e inferior, repisas abiertas y cajones extraíbles.",
       dimensions: [125, 222, 60],
@@ -58,7 +73,7 @@
         "Se colocan los cajones extraíbles y los frentes corredizos.",
       ],
     },
-    "04": {
+    "06": {
       name: "Habitación auxiliar 2",
       mechanism: "Puertas corredizas con riel superior e inferior, repisas y tres cajones.",
       dimensions: [174, 222, 60],
@@ -91,7 +106,7 @@
   }
 
   function drawModel(model, design, variant) {
-    model.style.setProperty("--qc-model-ratio", design.dimensions[0] / design.dimensions[1]);
+    model.style.setProperty("--qc-model-ratio", design.dimensions ? design.dimensions[0] / design.dimensions[1] : 1);
 
     const frame = ["side", "top", "header", "plinth", "left", "right"].map((edge) => part(`qc-casing qc-casing--${edge}`));
     const interior = part("qc-interior");
@@ -111,7 +126,7 @@
       ...drawers,
     );
 
-    if (variant !== "01") {
+    if (design.fronts.some(front => front[4] === "slide")) {
       interior.append(part("qc-runner", [0, 0, 100, 1.7]), part("qc-runner", [0, 98.3, 100, 1.7]));
     }
 
@@ -153,8 +168,8 @@
         drawModel(model, design, state.variant);
         name.textContent = design.name;
         mechanism.textContent = design.mechanism;
-        dimensions.textContent = `${design.dimensions.join(" × ")} cm`;
-        modelIndex.textContent = `${state.variant} / 04`;
+        dimensions.textContent = design.dimensions ? `${design.dimensions.join(" × ")} cm` : "Por confirmar";
+        modelIndex.textContent = `${state.variant} / 06`;
       }
 
       stage.dataset.model = state.variant;

@@ -498,8 +498,8 @@
   height: max(2px, 7%);
 }
 
-.qc-figure[data-model="03"] .qc-drawer::after,
-.qc-figure[data-model="04"] .qc-drawer::after { content: none; }
+.qc-figure[data-model="05"] .qc-drawer::after,
+.qc-figure[data-model="06"] .qc-drawer::after { content: none; }
 
 .qc-figure[data-drawers="true"][data-view="operation"] .qc-drawer {
   transform: translate(-5.5%, 31%);
