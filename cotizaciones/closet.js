@@ -23,8 +23,8 @@
     },
     "02": {
       name: "Principal · Corredizo con zapatero",
-      mechanism: "Una puerta corrediza descubre el doble colgadero. Al otro lado, tres cajones y un zapatero extraíble organizan la ropa y el calzado.",
-      dimensions: null,
+      mechanism: "Una puerta corrediza descubre el doble colgadero. Al otro lado, tres cajones y un zapatero abatible organizan la ropa y el calzado.",
+      dimensions: [222, 170, 60],
       compartments: [[0, 0, 52, 100], [52, 0, 26, 100], [78, 0, 22, 100]],
       dividers: [52, 78],
       shelves: [[0, 20, 100], [52, 42, 26], [52, 55, 26], [79, 30, 21], [79, 40, 21], [79, 50, 21], [79, 60, 21], [79, 70, 21], [79, 80, 21], [79, 90, 21]],
@@ -35,8 +35,8 @@
     },
     "03": {
       name: "Principal · Puertas lisas con módulo lateral",
-      mechanism: "Dos puertas altas cubren los colgaderos y cuatro cajones. El módulo lateral extraíble reúne las repisas en un solo lugar.",
-      dimensions: null,
+      mechanism: "Dos puertas altas cubren los colgaderos y cuatro cajones. El módulo lateral extraíble incluye un zapatero.",
+      dimensions: [222, 170, 60],
       compartments: [[0, 0, 17, 100], [17, 0, 41, 100], [58, 0, 42, 100]],
       dividers: [17, 58],
       shelves: [[18, 20, 82], [0, 13, 17], [0, 24, 17], [0, 35, 17], [0, 46, 17], [0, 57, 17], [0, 68, 17], [0, 79, 17], [0, 90, 17]],
@@ -48,7 +48,7 @@
     "04": {
       name: "Principal · Cuatro puertas con altillo",
       mechanism: "Cuatro puertas con manijas negras dan acceso a tres módulos con barras, cajones centrales y repisas para zapatos.",
-      dimensions: null,
+      dimensions: [222, 170, 60],
       compartments: [[0, 0, 33, 100], [33, 0, 33, 100], [66, 0, 34, 100]],
       dividers: [33, 66],
       shelves: [[0, 20, 100], [0, 61, 33], [67, 70, 33], [67, 85, 33]],

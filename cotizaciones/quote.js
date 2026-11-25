@@ -16,8 +16,10 @@ function initializeQuote(quote) {
     const selected = options.filter(({ checked }) => checked);
     const principal = selected.find(({ dataset }) => dataset.quoteGroup === "principal");
     if (light) {
-      light.disabled = !principal;
-      if (!principal) light.checked = false;
+      const unavailable = principal?.hasAttribute('data-light-unavailable') ?? false;
+      light.closest('label').hidden = unavailable;
+      light.disabled = !principal || unavailable;
+      if (light.disabled) light.checked = false;
     }
     const extra = light?.checked ? Number(light.dataset.price) : 0;
     const amount = selected.reduce((sum, { dataset }) => sum + Number(dataset.price), extra);
